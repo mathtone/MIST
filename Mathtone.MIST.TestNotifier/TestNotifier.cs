@@ -11,12 +11,12 @@
 		public string AllProperties { get; set; }
 	}
 
-	[Notifier(NotificationMode.Implicit)]
-	public class TestNotifier2 : NotifierBase {
+	//[Notifier(NotificationMode.Implicit)]
+	//public class TestNotifier2 : NotifierBase {
 
-		public string SomeProperty { get; set; }
+	//	public string SomeProperty { get; set; }
 
-		[Notify("SomeProperty", "AllProperties")]
-		public string AllProperties { get; set; }
-	}
+	//	[Notify("SomeProperty", "AllProperties")]
+	//	public string AllProperties { get; set; }
+	//}
 }

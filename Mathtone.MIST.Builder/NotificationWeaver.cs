@@ -84,10 +84,10 @@ namespace Mathtone.MIST {
 				}
 
 				//Determine whether to use explicit/implicit notifier identification.
-				if (notifierAttr.HasConstructorArguments) {
-					mode = (NotificationMode)notifierAttr.ConstructorArguments[0].Value;
-				}
-				//Identify the name of the property/properties that will be passed to the notificaiton method.
+				//if (notifierAttr.HasConstructorArguments) {
+				//	mode = (NotificationMode)notifierAttr.ConstructorArguments[0].Value;
+				//}
+				//Identify the name of the property/properties that will be passed to the notification method.
 				foreach (var propDef in typeDef.Properties) {
 
 					var propNames = GetNotifyPropertyNames(propDef);

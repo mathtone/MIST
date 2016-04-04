@@ -43,22 +43,22 @@ namespace Mathtone.MIST.Tests {
 		}
 
 		void LoadAndTestNotifier2() {
-			var notifier = new TestNotifier2();
-			var changedProps = new List<string>();
+			//var notifier = new TestNotifier2();
+			//var changedProps = new List<string>();
 
-			notifier.PropertyChanged += (a, b) => {
-				changedProps.Add(b.PropertyName);
-			};
+			//notifier.PropertyChanged += (a, b) => {
+			//	changedProps.Add(b.PropertyName);
+			//};
 
-			var change = new[] { "SomeProperty" };
-			notifier.SomeProperty = "CHANGE1";
-			Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
-			changedProps.Clear();
+			//var change = new[] { "SomeProperty" };
+			//notifier.SomeProperty = "CHANGE1";
+			//Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
+			//changedProps.Clear();
 
-			change = new[] { "SomeProperty", "AllProperties" };
-			notifier.AllProperties = "CHANGE2";
-			Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
-			changedProps.Clear();
+			//change = new[] { "SomeProperty", "AllProperties" };
+			//notifier.AllProperties = "CHANGE2";
+			//Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
+			//changedProps.Clear();
 
 		}
 	}
