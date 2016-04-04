@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{63E6915C-7EA4-4D76-AB28-0D7191EEA626}</ProjectGuid>
+    <RootNamespace>Mono.Cecil.Pdb</RootNamespace>
+    <AssemblyName>Mono.Cecil.Pdb</AssemblyName>
+    <NoWarn>0649</NoWarn>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'net_4_6_debug'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\net_4_6_debug\</OutputPath>
+    <DefineConstants>;DEBUG;TRACE;;NET_3_5;NET_4_0;NET_4_5;</DefineConstants>
+    <NoWarn>0649</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'net_4_6_release'">
+    <OutputPath>bin\net_4_6_release\</OutputPath>
+    <DefineConstants>;TRACE;;NET_3_5;NET_4_0;NET_4_5;</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>0649</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'net_2_0_Release'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'net_3_5_Debug'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'net_3_5_Release'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'net_4_0_Debug'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'net_4_0_Release'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'net_4_5_Debug'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'net_4_5_Release'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\ProjectInfo.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\BitAccess.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\BitSet.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\CvInfo.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\DataStream.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\DbiDbgHdr.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\DbiHeader.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\DbiModuleInfo.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\DbiSecCon.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\Interfaces.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\IntHashTable.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\MsfDirectory.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbConstant.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbDebugException.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbException.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbFile.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbFileHeader.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbFunction.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbLine.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbLines.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbReader.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbScope.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbSlot.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbSource.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbTokenLine.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\SourceLocationProvider.cs" />
+    <Compile Include="Mono.Cecil.Pdb\AssemblyInfo.cs" />
+    <Compile Include="Mono.Cecil.Pdb\ISymUnmanagedDocumentWriter.cs" />
+    <Compile Include="Mono.Cecil.Pdb\ISymUnmanagedWriter2.cs" />
+    <Compile Include="Mono.Cecil.Pdb\ModuleMetadata.cs" />
+    <Compile Include="Mono.Cecil.Pdb\PdbHelper.cs" />
+    <Compile Include="Mono.Cecil.Pdb\PdbReader.cs" />
+    <Compile Include="Mono.Cecil.Pdb\PdbWriter.cs" />
+    <Compile Include="Mono.Cecil.Pdb\SymDocumentWriter.cs" />
+    <Compile Include="Mono.Cecil.Pdb\SymWriter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Mono.Cecil.csproj">
+      <Project>{d68133bd-1e63-496e-9ede-4fbdbf77b486}</Project>
+      <Name>Mono.Cecil</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="..\..\Mono.Cecil.settings" />
+  <Import Project="$(MSBuildCSharpTargets)" />
+</Project>
