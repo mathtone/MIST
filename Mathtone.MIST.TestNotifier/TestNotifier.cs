@@ -33,17 +33,4 @@
 			set { property3 = value; }
 		}
 	}
-
-	[Notifier(NotificationMode.Implicit)]
-	public class TestNotifier4:NotifierBase {
-
-		public string Property1 { get; set; }
-
-		[NotifyTarget]
-		void Notify(params string[] names) {
-			foreach(var name in names) {
-				base.RaisePropertyChanged(name);
-			}
-		}
-	}
 }
