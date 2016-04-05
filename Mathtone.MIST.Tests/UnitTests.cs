@@ -10,29 +10,24 @@ namespace Mathtone.MIST.Tests {
 	[TestClass]
 	public class UnitTests {
 
-		string ApplicationPath {
+		static string ApplicationPath {
 			get {
 				return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 			}
 		}
+		static bool initialized;
 
-		[TestMethod]
-		public void TestNotificationWeaver() {
-			var weaver = new NotificationWeaver(ApplicationPath + "\\Mathtone.MIST.TestNotifier.dll");
-			weaver.Weave(true);
-			LoadAndTestNotifier1();
-			LoadAndTestNotifier2();
-			LoadAndTestNotifier3();
+		[TestInitialize]
+		public void InitializeTest() {
+			if (!initialized) {
+				var weaver = new NotificationWeaver(ApplicationPath + "\\Mathtone.MIST.TestNotifier.dll");
+				weaver.Weave(true);
+				initialized = true;
+			}
 		}
 
 		[TestMethod]
-		public void ExecuteBuildTest() {
-			//C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe
-			WriteLine("Executing build test");
-
-		}
-
-		void LoadAndTestNotifier1() {
+		public void LoadAndTestNotifier1() {
 			WriteLine("Testing Notifier 1");
 			var notifier = new TestNotifier();
 			var changedProps = new List<string>();
@@ -52,8 +47,8 @@ namespace Mathtone.MIST.Tests {
 			changedProps.Clear();
 			
 		}
-
-		void LoadAndTestNotifier2() {
+		[TestMethod]
+		public void LoadAndTestNotifier2() {
 			WriteLine("Testing Notifier 2");
 			var notifier = new TestNotifier2();
 			var changedProps = new List<string>();
@@ -73,8 +68,8 @@ namespace Mathtone.MIST.Tests {
 			changedProps.Clear();
 
 		}
-
-		void LoadAndTestNotifier3() {
+		[TestMethod]
+		public void LoadAndTestNotifier3() {
 			WriteLine("Testing Notifier 3");
 			var notifier = new TestNotifier3();
 			var changedProps = new List<string>();

@@ -116,7 +116,16 @@ namespace Mathtone.MIST {
 		MethodReference GetNotifyTarget(TypeDefinition typeDef) {
 			foreach (var methDef in typeDef.Methods) {
 				if (methDef.CustomAttributes.Any(a => a.AttributeType.FullName == NotifyTargetName)) {
-					return methDef;
+					//Verify target method has an appropriate signature
+					if (methDef.Parameters.Count == 1) {
+						var parameterType = methDef.Parameters[0].ParameterType.FullName;
+						if (parameterType == "System.String") {
+							return methDef;
+						}
+						else {
+							throw new InvalidOperationException($"Notify target {methDef.DeclaringType.FullName}.{methDef.Name} is not an Action<string>");
+						}
+					}
 				}
 			}
 			var bt = typeDef.BaseType;
@@ -172,10 +181,10 @@ namespace Mathtone.MIST {
 				return;
 
 			var msil = propDef.SetMethod.Body.GetILProcessor();
-			//Should produce something liek the following.
+			//Should produce something like the following.
 			/*
 			.method public hidebysig specialname instance void 
-			.et_SomeProperty(string 'value') cil managed
+			.set_SomeProperty(string 'value') cil managed
 			{
 			  .custom instance void [mscorlib]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = ( 01 00 00 00 ) 
 			  // Code size       8 (0x8)
