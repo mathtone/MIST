@@ -38,12 +38,12 @@ namespace Mathtone.MIST.Tests {
 
 			var change = new[] { "SomeProperty"};
 			notifier.SomeProperty = "CHANGE1";
-			Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
+			Assert.IsTrue(changedProps.Intersect(change).Count() == changedProps.Count);
 			changedProps.Clear();
 
 			change = new[] { "SomeProperty", "AllProperties" };
 			notifier.AllProperties = "CHANGE2";
-			Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
+			Assert.IsTrue(changedProps.Intersect(change).Count() == changedProps.Count);
 			changedProps.Clear();
 			
 		}
@@ -64,7 +64,7 @@ namespace Mathtone.MIST.Tests {
 
 			change = new[] { "SomeProperty", "AllProperties" };
 			notifier.AllProperties = "CHANGE2";
-			Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
+			Assert.IsTrue(changedProps.Intersect(change).Count() == changedProps.Count);
 			changedProps.Clear();
 
 		}
@@ -80,12 +80,13 @@ namespace Mathtone.MIST.Tests {
 
 			var change = new[] { "Property1" };
 			notifier.Property1= "CHANGE1";
-			Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
+			Assert.IsTrue(changedProps.Intersect(change).Count() == changedProps.Count);
 			changedProps.Clear();
 
 			change = new[] { "Property3" };
 			notifier.Property3 = 3;
-			Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
+			notifier.Property4 = true;
+			Assert.IsTrue(changedProps.Intersect(change).Count() == changedProps.Count);
 			changedProps.Clear();
 		}
 	}

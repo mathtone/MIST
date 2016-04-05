@@ -32,5 +32,8 @@
 			get { return property3; }
 			set { property3 = value; }
 		}
+
+		[IgnoreNotify]
+		public bool Property4 { get; set; }
 	}
 }

@@ -19,6 +19,15 @@ namespace Mathtone.MIST {
 	}
 
 	/// <summary>
+	/// Used on public properties in implicit notification scenarios for which notificaiton should NOT be implemented.
+	/// </summary>
+	/// <seealso cref="System.Attribute" />
+	[AttributeUsage(AttributeTargets.Property)]
+	public class IgnoreNotifyAttribute : Attribute {
+
+	}
+
+	/// <summary>
 	/// Used to mark a class for automatic notification implementation;
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class)]

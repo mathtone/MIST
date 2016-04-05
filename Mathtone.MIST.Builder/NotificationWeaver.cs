@@ -95,13 +95,14 @@ namespace Mathtone.MIST {
 				foreach (var propDef in typeDef.Properties) {
 
 					var propNames = GetNotifyPropertyNames(propDef);
-
-					if (!propNames.Any() && mode == NotificationMode.Implicit && propDef.GetMethod.IsPublic) {
-						propNames = new[] { propDef.Name };
-					}
-					if (propNames != null) {
-						InsertNotificationsIntoProperty(propDef, notifyTarget, propNames);
-						rtn = true;
+					if (!propDef.CustomAttributes.Any(a => a.AttributeType.FullName == "Mathtone.MIST.IgnoreNotifyAttribute")) {
+						if (!propNames.Any() && mode == NotificationMode.Implicit && propDef.GetMethod.IsPublic) {
+							propNames = new[] { propDef.Name };
+						}
+						if (propNames != null) {
+							InsertNotificationsIntoProperty(propDef, notifyTarget, propNames);
+							rtn = true;
+						}
 					}
 				}
 			}
@@ -177,11 +178,8 @@ namespace Mathtone.MIST {
 		/// <param name="notifyTarget">The notify target.</param>
 		/// <param name="notifyPropertyNames">The notify property names.</param>
 		void InsertNotificationsIntoProperty(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames) {
-			if (propDef.SetMethod == null)
-				return;
-
-			var msil = propDef.SetMethod.Body.GetILProcessor();
-			//Should produce something like the following.
+			
+			//Should produce something like the following:
 			/*
 			.method public hidebysig specialname instance void 
 			.set_SomeProperty(string 'value') cil managed
@@ -196,6 +194,9 @@ namespace Mathtone.MIST {
 			} // end of method TestNotifier::set_SomeProperty
 			*/
 
+			if (propDef.SetMethod == null)
+				return;
+			var msil = propDef.SetMethod.Body.GetILProcessor();
 			msil.InsertBefore(propDef.SetMethod.Body.Instructions[0], msil.Create(OpCodes.Nop));
 			foreach (var notifyPropertyName in notifyPropertyNames) {
 				var ldarg0 = msil.Create(OpCodes.Ldarg_0);
