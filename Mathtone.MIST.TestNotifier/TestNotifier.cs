@@ -19,4 +19,18 @@
 		[Notify("SomeProperty", "AllProperties")]
 		public string AllProperties { get; set; }
 	}
+
+	[Notifier(NotificationMode.Implicit)]
+	public class TestNotifier3 : NotifierBase {
+
+		public string Property1 { get; set; }
+
+		public string Property2 { get { return Property1; } }
+
+		int property3;
+		public int Property3 {
+			get { return property3; }
+			set { property3 = value; }
+		}
+	}
 }

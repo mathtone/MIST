@@ -86,7 +86,6 @@ namespace Mathtone.MIST {
 					throw new Exception($"Cannot locate notify target for type: {typeDef.Name}");
 				}
 
-
 				//Determine whether to use explicit/implicit notifier identification.
 				if (notifierAttr.HasConstructorArguments) {
 					mode = (NotificationMode)notifierAttr.ConstructorArguments[0].Value;
@@ -169,6 +168,8 @@ namespace Mathtone.MIST {
 		/// <param name="notifyTarget">The notify target.</param>
 		/// <param name="notifyPropertyNames">The notify property names.</param>
 		void WeaveNotifiersIntoProperty(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames) {
+			if (propDef.SetMethod == null)
+				return;
 
 			var msil = propDef.SetMethod.Body.GetILProcessor();
 			//Should produce something liek the following.

@@ -22,6 +22,7 @@ namespace Mathtone.MIST.Tests {
 			weaver.Weave(true);
 			LoadAndTestNotifier1();
 			LoadAndTestNotifier2();
+			LoadAndTestNotifier3();
 		}
 
 		[TestMethod]
@@ -53,7 +54,7 @@ namespace Mathtone.MIST.Tests {
 		}
 
 		void LoadAndTestNotifier2() {
-			WriteLine("Testing Notifier 1");
+			WriteLine("Testing Notifier 2");
 			var notifier = new TestNotifier2();
 			var changedProps = new List<string>();
 
@@ -71,6 +72,26 @@ namespace Mathtone.MIST.Tests {
 			Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
 			changedProps.Clear();
 
+		}
+
+		void LoadAndTestNotifier3() {
+			WriteLine("Testing Notifier 3");
+			var notifier = new TestNotifier3();
+			var changedProps = new List<string>();
+
+			notifier.PropertyChanged += (a, b) => {
+				changedProps.Add(b.PropertyName);
+			};
+
+			var change = new[] { "Property1" };
+			notifier.Property1= "CHANGE1";
+			Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
+			changedProps.Clear();
+
+			change = new[] { "Property3" };
+			notifier.Property3 = 3;
+			Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
+			changedProps.Clear();
 		}
 	}
 }
