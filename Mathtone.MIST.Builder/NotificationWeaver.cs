@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace Mathtone.MIST {
 	/// <summary>
@@ -27,6 +28,7 @@ namespace Mathtone.MIST {
 		public NotificationWeaver(string assemblyPath) {
 			this.assemblyPath = assemblyPath;
 			this.resolver = new DefaultAssemblyResolver();
+			resolver.AddSearchDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
 			resolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
 			mdResolver = new MetadataResolver(resolver);
 		}
@@ -38,7 +40,7 @@ namespace Mathtone.MIST {
 		public void Weave(bool debug = false) {
 			bool mustSave = false;
 			var assemblyDef = null as AssemblyDefinition;
-			var readParameters = new ReaderParameters { ReadSymbols = debug };
+			var readParameters = new ReaderParameters { ReadSymbols = debug, AssemblyResolver = resolver };
 			var writeParameters = new WriterParameters { WriteSymbols = debug };
 
 			//Load the assembly.
@@ -72,10 +74,11 @@ namespace Mathtone.MIST {
 
 			var rtn = false;
 			var notifierAttr = typeDef.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == NotifierTypeName);
+
 			var mode = NotificationMode.Explicit;
 			//Search for a NotifyAttribute
 			if (notifierAttr != null) {
-
+				var attrType = mdResolver.Resolve(notifierAttr.AttributeType);
 				//Locate the notification target method.
 				var notifyTarget = GetNotifyTarget(typeDef);
 
@@ -83,16 +86,18 @@ namespace Mathtone.MIST {
 					throw new Exception($"Cannot locate notify target for type: {typeDef.Name}");
 				}
 
+
 				//Determine whether to use explicit/implicit notifier identification.
-				//if (notifierAttr.HasConstructorArguments) {
-				//	mode = (NotificationMode)notifierAttr.ConstructorArguments[0].Value;
-				//}
+				if (notifierAttr.HasConstructorArguments) {
+					mode = (NotificationMode)notifierAttr.ConstructorArguments[0].Value;
+				}
+
 				//Identify the name of the property/properties that will be passed to the notification method.
 				foreach (var propDef in typeDef.Properties) {
 
 					var propNames = GetNotifyPropertyNames(propDef);
 
-					if(!propNames.Any() && mode == NotificationMode.Implicit && propDef.GetMethod.IsPublic) {
+					if (!propNames.Any() && mode == NotificationMode.Implicit && propDef.GetMethod.IsPublic) {
 						propNames = new[] { propDef.Name };
 					}
 					if (propNames != null) {
@@ -102,7 +107,6 @@ namespace Mathtone.MIST {
 				}
 			}
 			return rtn;
-
 		}
 
 		/// <summary>

@@ -24,11 +24,11 @@ namespace Mathtone.MIST {
 	[AttributeUsage(AttributeTargets.Class)]
 	public class NotifierAttribute : Attribute {
 
-		//public NotificationMode NotificationMode { get; protected set; }
+		public NotificationMode NotificationMode { get; protected set; }
 
-		//public NotifierAttribute(NotificationMode mode = NotificationMode.Explicit) {
-		//	this.NotificationMode = mode;
-		//}
+		public NotifierAttribute(NotificationMode mode = NotificationMode.Explicit) {
+			this.NotificationMode = mode;
+		}
 	}
 
 	/// <summary>
