@@ -21,7 +21,7 @@ namespace Mathtone.MIST.Tests {
 		public void InitializeTest() {
 			if (!initialized) {
 				var weaver = new NotificationWeaver(ApplicationPath + "\\Mathtone.MIST.TestNotifier.dll");
-				weaver.Weave(true);
+				weaver.InsertNotifications(true);
 				initialized = true;
 			}
 		}

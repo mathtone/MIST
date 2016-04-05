@@ -37,7 +37,7 @@ namespace Mathtone.MIST {
 		/// Weaves the notification mechanism into the assembly
 		/// </summary>
 		/// <param name="debug">if set to <c>true</c> [debug].</param>
-		public void Weave(bool debug = false) {
+		public void InsertNotifications(bool debug = false) {
 			bool mustSave = false;
 			var assemblyDef = null as AssemblyDefinition;
 			var readParameters = new ReaderParameters { ReadSymbols = debug, AssemblyResolver = resolver };
@@ -51,7 +51,7 @@ namespace Mathtone.MIST {
 			//Search for types and weave notifiers into them if necessary.
 			foreach (var moduleDef in assemblyDef.Modules) {
 				foreach (var typeDef in moduleDef.Types) {
-					mustSave |= WeaveType(typeDef);
+					mustSave |= ProcessType(typeDef);
 				}
 			}
 
@@ -70,15 +70,15 @@ namespace Mathtone.MIST {
 		/// <param name="typeDef">The type definition.</param>
 		/// <returns><c>true</c> if the type was altered, <c>false</c> otherwise.</returns>
 		/// <exception cref="System.Exception"></exception>
-		bool WeaveType(TypeDefinition typeDef) {
+		bool ProcessType(TypeDefinition typeDef) {
 
 			var rtn = false;
 			var notifierAttr = typeDef.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == NotifierTypeName);
 
-			var mode = NotificationMode.Explicit;
 			//Search for a NotifyAttribute
 			if (notifierAttr != null) {
-				var attrType = mdResolver.Resolve(notifierAttr.AttributeType);
+				var mode = NotificationMode.Explicit;
+				//if (notifierAttributeType == null) notifierAttributeType = mdResolver.Resolve(notifierAttr.AttributeType);
 				//Locate the notification target method.
 				var notifyTarget = GetNotifyTarget(typeDef);
 
@@ -100,7 +100,7 @@ namespace Mathtone.MIST {
 						propNames = new[] { propDef.Name };
 					}
 					if (propNames != null) {
-						WeaveNotifiersIntoProperty(propDef, notifyTarget, propNames);
+						InsertNotificationsIntoProperty(propDef, notifyTarget, propNames);
 						rtn = true;
 					}
 				}
@@ -176,7 +176,7 @@ namespace Mathtone.MIST {
 		/// <param name="propDef">The property definition.</param>
 		/// <param name="notifyTarget">The notify target.</param>
 		/// <param name="notifyPropertyNames">The notify property names.</param>
-		void WeaveNotifiersIntoProperty(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames) {
+		void InsertNotificationsIntoProperty(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames) {
 			if (propDef.SetMethod == null)
 				return;
 
@@ -243,7 +243,7 @@ namespace Mathtone.MIST {
 		/// </summary>
 		/// <returns>true if the task successfully executed; otherwise, false.</returns>
 		public override bool Execute() {
-			new NotificationWeaver(TargetPath).Weave(DebugMode);
+			new NotificationWeaver(TargetPath).InsertNotifications(DebugMode);
 			return true;
 		}
 	}
