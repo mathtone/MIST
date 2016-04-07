@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,67 +28,42 @@ namespace Mathtone.MIST.Tests {
 		}
 
 		[TestMethod]
-		public void LoadAndTestNotifier1() {
-			WriteLine("Testing Notifier 1");
-			var notifier = new TestNotifier();
-			var changedProps = new List<string>();
-
-			notifier.PropertyChanged += (a, b) => {
-				changedProps.Add(b.PropertyName);
-			};
-
-			var change = new[] { "SomeProperty"};
-			notifier.SomeProperty = "CHANGE1";
-			Assert.IsTrue(changedProps.Intersect(change).Count() == changedProps.Count);
-			changedProps.Clear();
-
-			change = new[] { "SomeProperty", "AllProperties" };
-			notifier.AllProperties = "CHANGE2";
-			Assert.IsTrue(changedProps.Intersect(change).Count() == changedProps.Count);
-			changedProps.Clear();
-			
+		public void TestExplicitNotifier() {
+			TestNotifier(new ExplicitTestNotifier());
 		}
+
 		[TestMethod]
-		public void LoadAndTestNotifier2() {
-			WriteLine("Testing Notifier 2");
-			var notifier = new TestNotifier2();
-			var changedProps = new List<string>();
-
-			notifier.PropertyChanged += (a, b) => {
-				changedProps.Add(b.PropertyName);
-			};
-
-			var change = new[] { "SomeProperty" };
-			notifier.SomeProperty = "CHANGE1";
-			Assert.IsTrue(changedProps.Intersect(change).Count() == change.Length);
-			changedProps.Clear();
-
-			change = new[] { "SomeProperty", "AllProperties" };
-			notifier.AllProperties = "CHANGE2";
-			Assert.IsTrue(changedProps.Intersect(change).Count() == changedProps.Count);
-			changedProps.Clear();
-
+		public void TestImplicitNotifier() {
+			TestNotifier(new ImplicitTestNotifier());
 		}
-		[TestMethod]
-		public void LoadAndTestNotifier3() {
-			WriteLine("Testing Notifier 3");
-			var notifier = new TestNotifier3();
-			var changedProps = new List<string>();
 
-			notifier.PropertyChanged += (a, b) => {
-				changedProps.Add(b.PropertyName);
+		void TestNotifier(ITestNotifier notifier) {
+			AssertNotificationTest(
+				notifier,
+				a => {
+					a.Property1 = "A";
+					a.Property2 = "B";
+					a.Prop1And2 = "C";
+					a.Supressed = "X";
+				},
+				a => a.SequenceEqual(new[] { "Property1", "Property2", "Prop1And2", "Property1", "Property2" })
+			);
+		}
+
+		void AssertNotificationTest<T>(T notifier, Action<T> actions, Func<IEnumerable<string>, bool> verifier) where T : ITestNotifier {
+			Assert.IsTrue(ExecuteNotificationTest(notifier, actions, verifier));
+		}
+
+		bool ExecuteNotificationTest<T>(T notifier, Action<T> actions, Func<IEnumerable<string>, bool> verifier) where T : ITestNotifier {
+			var changed = new List<string>();
+			PropertyChangedEventHandler handler = (sender, args) => {
+				changed.Add(args.PropertyName);
 			};
-
-			var change = new[] { "Property1" };
-			notifier.Property1= "CHANGE1";
-			Assert.IsTrue(changedProps.Intersect(change).Count() == changedProps.Count);
-			changedProps.Clear();
-
-			change = new[] { "Property3" };
-			notifier.Property3 = 3;
-			notifier.Property4 = true;
-			Assert.IsTrue(changedProps.Intersect(change).Count() == changedProps.Count);
-			changedProps.Clear();
+			notifier.PropertyChanged += handler;
+			actions(notifier);
+			notifier.PropertyChanged -= handler;
+			var rtn = verifier(changed);
+			return rtn;
 		}
 	}
 }
