@@ -23,7 +23,7 @@ namespace Mathtone.MIST {
 	/// </summary>
 	/// <seealso cref="System.Attribute" />
 	[AttributeUsage(AttributeTargets.Property)]
-	public class IgnoreNotifyAttribute : Attribute {
+	public class SuppressNotifyAttribute : Attribute {
 
 	}
 
