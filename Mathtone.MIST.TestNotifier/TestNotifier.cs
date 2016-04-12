@@ -1,36 +1,28 @@
 ﻿namespace Mathtone.MIST.Tests {
 
-
-	[Notifier]
+	[Notifier(NotificationMode.Implicit)]
 	public class TestNotifier : NotifierBase {
 
-		[Notify]
-		public string SomeProperty { get; set; }
+		[Notifier(NotificationMode.Implicit)]
+		public class NestedClass : NotifierBase {
+			public int Change1 { get; set; }
 
-		[Notify("SomeProperty", "AllProperties")]
-		public string AllProperties { get; set; }
-	}
-
-	[Notifier(NotificationMode.Implicit)]
-	public class TestNotifier2 : NotifierBase {
-
-		public string SomeProperty { get; set; }
-
-		[Notify("SomeProperty", "AllProperties")]
-		public string AllProperties { get; set; }
-	}
-
-	[Notifier(NotificationMode.Implicit)]
-	public class TestNotifier3 : NotifierBase {
-
-		public string Property1 { get; set; }
-
-		public string Property2 { get { return Property1; } }
-
-		int property3;
-		public int Property3 {
-			get { return property3; }
-			set { property3 = value; }
+			public int Change2 { get; set; }
 		}
+
+		public string Change1 { get; set; }
+
+		public string Change2 { get; set; }
+
+		public string ReadOnly => Change1 + Change2;
+
+		public NestedClass Nested { get; } = new NestedClass();
+
+		[SuppressNotify]
+		public string ChangeNone { get; set; }
+
+		[Notify("Change1","Change2","ReadOnly")]
+		public string ChangeAll { get; set; }
+
 	}
 }

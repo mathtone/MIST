@@ -78,7 +78,7 @@ namespace Mathtone.MIST {
 			//Search for a NotifyAttribute
 			if (notifierAttr != null) {
 				var mode = NotificationMode.Explicit;
-				//if (notifierAttributeType == null) notifierAttributeType = mdResolver.Resolve(notifierAttr.AttributeType);
+
 				//Locate the notification target method.
 				var notifyTarget = GetNotifyTarget(typeDef);
 
@@ -95,15 +95,20 @@ namespace Mathtone.MIST {
 				foreach (var propDef in typeDef.Properties) {
 
 					var propNames = GetNotifyPropertyNames(propDef);
-
-					if (!propNames.Any() && mode == NotificationMode.Implicit && propDef.GetMethod.IsPublic) {
-						propNames = new[] { propDef.Name };
-					}
-					if (propNames != null) {
-						InsertNotificationsIntoProperty(propDef, notifyTarget, propNames);
-						rtn = true;
+					if (!propDef.CustomAttributes.Any(a => a.AttributeType.FullName == "Mathtone.MIST.SuppressNotifyAttribute")) {
+						if (!propNames.Any() && mode == NotificationMode.Implicit && propDef.GetMethod.IsPublic) {
+							propNames = new[] { propDef.Name };
+						}
+						if (propNames != null) {
+							InsertNotificationsIntoProperty(propDef, notifyTarget, propNames);
+							rtn = true;
+						}
 					}
 				}
+			}
+
+			foreach (var type in typeDef.NestedTypes) {
+				ProcessType(type);
 			}
 			return rtn;
 		}
@@ -177,11 +182,8 @@ namespace Mathtone.MIST {
 		/// <param name="notifyTarget">The notify target.</param>
 		/// <param name="notifyPropertyNames">The notify property names.</param>
 		void InsertNotificationsIntoProperty(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames) {
-			if (propDef.SetMethod == null)
-				return;
 
-			var msil = propDef.SetMethod.Body.GetILProcessor();
-			//Should produce something like the following.
+			//Should produce something like the following:
 			/*
 			.method public hidebysig specialname instance void 
 			.set_SomeProperty(string 'value') cil managed
@@ -196,6 +198,12 @@ namespace Mathtone.MIST {
 			} // end of method TestNotifier::set_SomeProperty
 			*/
 
+			if (propDef.SetMethod == null)
+				return;
+			else if (propDef.SetMethod.Body == null) {
+				throw new InvalidOperationException("NotifyAttribute cannot be set on abstract properties");
+			}
+			var msil = propDef.SetMethod.Body.GetILProcessor();
 			msil.InsertBefore(propDef.SetMethod.Body.Instructions[0], msil.Create(OpCodes.Nop));
 			foreach (var notifyPropertyName in notifyPropertyNames) {
 				var ldarg0 = msil.Create(OpCodes.Ldarg_0);
@@ -208,43 +216,5 @@ namespace Mathtone.MIST {
 			}
 		}
 
-	}
-
-	/// <summary>
-	/// Class NotificationWeaverBuildTask.
-	/// </summary>
-	/// <example>
-	/// place the following XML in the project file.  The directorey containing Mathtone.MIST.Builder.dll should also contain Mathtone.MIST.dll, Mono.Cecil.dll and Mono.Cecil.pdb.dll
-	/// <UsingTask TaskName = "Mathtone.MIST.NotificationWeaverBuildTask"
-	///		 AssemblyFile="...path to "		 
-	/// />
-	/// <Target Name = "AfterBuild" >
-	///		<NotificationWeaverBuildTask TargetPath="$(TargetPath)" DebugMode="True"/>
-	/// </Target>
-	/// </example>
-	public class NotificationWeaverBuildTask : Task {
-
-		/// <summary>
-		/// Gets or sets the target path.
-		/// </summary>
-		/// <value>The target path.</value>
-		[Required]
-		public string TargetPath { get; set; }
-
-		/// <summary>
-		/// Gets or sets a value indicating whether [debug mode].
-		/// </summary>
-		/// <value><c>true</c> if [debug mode]; otherwise, <c>false</c>.</value>
-		[Required]
-		public bool DebugMode { get; set; }
-
-		/// <summary>
-		/// When overridden in a derived class, executes the task.
-		/// </summary>
-		/// <returns>true if the task successfully executed; otherwise, false.</returns>
-		public override bool Execute() {
-			new NotificationWeaver(TargetPath).InsertNotifications(DebugMode);
-			return true;
-		}
 	}
 }
