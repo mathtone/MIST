@@ -54,8 +54,8 @@ namespace Mathtone.MIST.Tests {
 					"Change1",
 					"Change2",
 					"ReadOnly",
-					"Change1",
-					"Change2"
+					"-Change1",
+					"-Change2"
 				}
 			));
 
