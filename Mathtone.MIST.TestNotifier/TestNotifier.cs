@@ -22,7 +22,7 @@
 			}
 
 			[NotifyTarget]
-			void Notify(string propertyName) {
+			void Notify(int v,string propertyName) {
 				base.RaisePropertyChanged("-" + propertyName);
 			}
 		}

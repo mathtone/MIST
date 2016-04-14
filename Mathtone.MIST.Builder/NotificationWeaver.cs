@@ -56,7 +56,12 @@ namespace Mathtone.MIST {
 			//Search for types and weave notifiers into them if necessary.
 			foreach (var moduleDef in assemblyDef.Modules) {
 				foreach (var typeDef in moduleDef.Types) {
-					mustSave |= ProcessType(typeDef);
+					try {
+						mustSave |= ProcessType(typeDef);
+					}
+					catch (Exception ex) {
+						throw new BuildTaskErrorException(typeDef.FullName, ex);
+					}
 				}
 			}
 
@@ -91,7 +96,7 @@ namespace Mathtone.MIST {
 				var notifyTarget = GetNotifyTarget(typeDef);
 
 				if (notifyTarget == null) {
-					throw new Exception($"Cannot locate notify target for type: {typeDef.Name}");
+					throw new CannotLocateNotifyTargetException(typeDef.FullName);
 				}
 
 				//Determine whether to use explicit/implicit notifier identification.
@@ -103,7 +108,7 @@ namespace Mathtone.MIST {
 				foreach (var propDef in typeDef.Properties) {
 					var propNames = GetNotifyPropertyNames(propDef);
 
-					if (! ContainsAttribute(propDef,SuppressNotifyTypeName)) {
+					if (!ContainsAttribute(propDef, SuppressNotifyTypeName)) {
 						//In implcit mode implement notification for all public properties
 						if (!propNames.Any() && mode == NotificationMode.Implicit && propDef.GetMethod.IsPublic) {
 							propNames = new[] { propDef.Name };
@@ -140,10 +145,9 @@ namespace Mathtone.MIST {
 						if (parameterType == typeof(string).FullName) {
 							return methDef;
 						}
-						else {
-							throw new InvalidOperationException($"Notify target {methDef.DeclaringType.FullName}.{methDef.Name} is not an Action<string>");
-						}
 					}
+					
+					throw new InvalidNotifyTargetException(methDef.FullName);
 				}
 			}
 
@@ -249,7 +253,7 @@ namespace Mathtone.MIST {
 				return;
 			else if (propDef.SetMethod.Body == null) {
 				//This is an abstract property, we don't do these either.
-				throw new InvalidOperationException("NotifyAttribute cannot be set on abstract properties");
+				throw new InvalidNotifierException();
 			}
 
 			//Retrieve an IL writer

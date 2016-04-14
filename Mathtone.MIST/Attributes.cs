@@ -57,6 +57,7 @@ namespace Mathtone.MIST {
 		/// Properties must be marked with the <see cref="NotifyAttribute"/>
 		/// </summary>
 		Explicit,
+
 		/// <summary>
 		/// Notification will be implemented for all public properties declared within the class;
 		/// </summary>
