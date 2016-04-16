@@ -30,7 +30,7 @@ namespace Mathtone.MIST.Tests {
 
 		[TestMethod]
 		public void TestNotifier() {
-			
+
 			var notifier = new TestNotifier();
 			var changedProps = new List<string>();
 
@@ -64,6 +64,24 @@ namespace Mathtone.MIST.Tests {
 
 			notifier.PropertyChanged -= handler;
 			notifier.Nested.PropertyChanged -= handler;
+		}
+
+		[TestMethod]
+		public void TestNotifier2() {
+			var notifier = new TestNotifier2();
+			var changedProps = new List<string>();
+
+			WriteLine("Testing Notifier...");
+
+			PropertyChangedEventHandler handler = (a, b) => {
+				changedProps.Add(b.PropertyName);
+			};
+			notifier.PropertyChanged += handler;
+
+			notifier.Value = "";
+			Assert.IsTrue(changedProps.SequenceEqual(new[] { "Value" }));
+			
+			notifier.PropertyChanged -= handler;
 		}
 	}
 }

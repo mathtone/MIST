@@ -139,15 +139,37 @@ namespace Mathtone.MIST {
 			//Check each method for a NotifyTargetAttribute
 			foreach (var methDef in typeDef.Methods) {
 				if (ContainsAttribute(methDef, NotifyTargetName)) {
-					//Verify target method has an appropriate signature
-					if (methDef.Parameters.Count == 1) {
-						var parameterType = methDef.Parameters[0].ParameterType.FullName;
-						if (parameterType == typeof(string).FullName) {
-							return methDef;
-						}
+					var isValid = false;
+					switch (methDef.Parameters.Count) {
+						//case 0:
+						//	isValid = true;
+						//	break;
+						case 1:
+							isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName;
+							break;
+						//case 2:
+						//	isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
+						//		methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName;
+						//	break;
+						//case 3:
+						//	isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
+						//		methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName &&
+						//		methDef.Parameters[2].ParameterType.FullName == typeof(object).FullName;
+						//	break;
 					}
-					
-					throw new InvalidNotifyTargetException(methDef.FullName);
+					//Verify target method has an appropriate signature
+					//if (methDef.Parameters.Count == 1) {
+					//	var parameterType = methDef.Parameters[0].ParameterType.FullName;
+					//	if (parameterType == typeof(string).FullName) {
+					//		return methDef;
+					//	}
+					//}
+					if (isValid) {
+						return methDef;
+					}
+					else {
+						throw new InvalidNotifyTargetException(methDef.FullName);
+					}
 				}
 			}
 
@@ -249,44 +271,74 @@ namespace Mathtone.MIST {
 			*/
 
 			if (propDef.SetMethod == null)
-				//This is a read-ony property
+				//This is a read-only property
 				return;
 			else if (propDef.SetMethod.Body == null) {
 				//This is an abstract property, we don't do these either.
 				throw new InvalidNotifierException();
 			}
 
+			var methodBody = propDef.SetMethod.Body;
+
 			//Retrieve an IL writer
-			var msil = propDef.SetMethod.Body.GetILProcessor();
+			var msil = methodBody.GetILProcessor();
 
 			//Insert a Nop before the first instruction (like... at the beginning).
-			msil.InsertBefore(propDef.SetMethod.Body.Instructions[0], msil.Create(OpCodes.Nop));
+			var begin = msil.Create(OpCodes.Nop);
+			msil.InsertBefore(methodBody.Instructions[0], begin);
 
 			//Call the notification tareget method for 
 			foreach (var notifyPropertyName in notifyPropertyNames) {
 
-				//Load argument 0 onto the stack
-				var ldarg0 = msil.Create(OpCodes.Ldarg_0);
-
-				//Emit a call to the 
-				var callNotifyTarget = msil.Create(OpCodes.Call, notifyTarget);
+				var startInstructions = new Instruction[0];
+				var endInstructions = new Instruction[0];
 
 				//Load the value of the property name to be passed to the notify target onto the stack.
 				var propertyName = notifyPropertyName == null ?
 					msil.Create(OpCodes.Ldnull) :
 					msil.Create(OpCodes.Ldstr, notifyPropertyName);
 
-				//Begin inserting IL before the last instruction of the set method (presumably a return statement).
-				msil.InsertBefore(propDef.SetMethod.Body.Instructions[propDef.SetMethod.Body.Instructions.Count - 1], ldarg0);
 
-				//Insert property name
-				msil.InsertAfter(ldarg0, propertyName);
+				//Emit a call to the notify target
+				var callNotifyTarget = msil.Create(OpCodes.Call, notifyTarget);
+				switch (notifyTarget.Parameters.Count) {
+					//case 0: break;
+					case 1:
+						endInstructions = new[] {
+							msil.Create(OpCodes.Ldarg_0),
+							propertyName,
+							msil.Create(OpCodes.Call, notifyTarget),
+							msil.Create(OpCodes.Nop)
+						};
+						break;
+				}
 
-				//Insert call to notify target
-				msil.InsertAfter(propertyName, callNotifyTarget);
+				var insertionPoint = methodBody.Instructions[methodBody.Instructions.Count - 1];
 
-				//~FIN
-				msil.InsertAfter(callNotifyTarget, msil.Create(OpCodes.Nop));
+				//Insert IL instructions before end of method body
+				InsertBefore(msil, startInstructions, begin);
+				InsertBefore(msil, endInstructions, insertionPoint);
+			}
+		}
+
+		protected static void InsertAfter(ILProcessor ilProcessor, IEnumerable<Instruction> instructions, Instruction startPoint) {
+			var currentInstruction = startPoint;
+			foreach (var instruction in instructions) {
+				ilProcessor.InsertAfter(currentInstruction, instruction);
+				currentInstruction = instruction;
+			}
+		}
+		protected static void InsertBefore(ILProcessor ilProcessor, IEnumerable<Instruction> instructions, Instruction startPoint) {
+
+			var currentInstruction = null as Instruction;
+			foreach (var instruction in instructions) {
+				if (currentInstruction == null) {
+					ilProcessor.InsertBefore(startPoint, instruction);
+				}
+				else {
+					ilProcessor.InsertAfter(currentInstruction, instruction);
+				}
+				currentInstruction = instruction;
 			}
 		}
 	}
