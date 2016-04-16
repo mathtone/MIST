@@ -18,7 +18,7 @@ namespace Mathtone.MIST.Tests {
 				return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 			}
 		}
-		
+
 		[TestInitialize]
 		public void InitializeTest() {
 			if (!initialized) {
@@ -30,9 +30,11 @@ namespace Mathtone.MIST.Tests {
 
 		[TestMethod]
 		public void TestNotifier() {
-			WriteLine("Testing Notifier...");
+			
 			var notifier = new TestNotifier();
 			var changedProps = new List<string>();
+
+			WriteLine("Testing Notifier...");
 
 			PropertyChangedEventHandler handler = (a, b) => {
 				changedProps.Add(b.PropertyName);
