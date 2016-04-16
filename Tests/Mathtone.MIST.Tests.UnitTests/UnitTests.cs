@@ -11,13 +11,14 @@ namespace Mathtone.MIST.Tests {
 	[TestClass]
 	public class UnitTests {
 
+		static bool initialized;
+
 		static string ApplicationPath {
 			get {
 				return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 			}
 		}
-		static bool initialized;
-
+		
 		[TestInitialize]
 		public void InitializeTest() {
 			if (!initialized) {

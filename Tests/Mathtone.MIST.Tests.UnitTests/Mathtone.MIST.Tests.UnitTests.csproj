@@ -54,29 +54,25 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\cecil-master\Mono.Cecil.csproj">
+    <ProjectReference Include="..\..\cecil-master\Mono.Cecil.csproj">
       <Project>{d68133bd-1e63-496e-9ede-4fbdbf77b486}</Project>
       <Name>Mono.Cecil</Name>
     </ProjectReference>
-    <ProjectReference Include="..\cecil-master\symbols\pdb\Mono.Cecil.Pdb.csproj">
+    <ProjectReference Include="..\..\cecil-master\symbols\pdb\Mono.Cecil.Pdb.csproj">
       <Project>{63e6915c-7ea4-4d76-ab28-0d7191eea626}</Project>
       <Name>Mono.Cecil.Pdb</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Mathtone.MIST.Builder\Mathtone.MIST.Builder.csproj">
+    <ProjectReference Include="..\..\Mathtone.MIST.Builder\Mathtone.MIST.Builder.csproj">
       <Project>{d367664d-44ff-4fa9-bca0-b40a5a4c4577}</Project>
       <Name>Mathtone.MIST.Builder</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Mathtone.MIST.NotifierBase\Mathtone.MIST.NotifierBase.csproj">
+    <ProjectReference Include="..\Mathtone.MIST.Tests.NotifierBase\Mathtone.MIST.Tests.NotifierBase.csproj">
       <Project>{2b849608-bb74-456b-89c2-16abaa185718}</Project>
-      <Name>Mathtone.MIST.NotifierBase</Name>
+      <Name>Mathtone.MIST.Tests.NotifierBase</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Mathtone.MIST.TestNotifier\Mathtone.MIST.TestNotifier.csproj">
+    <ProjectReference Include="..\Mathtone.MIST.Tests.TestNotifier\Mathtone.MIST.Tests.TestNotifier.csproj">
       <Project>{f7b113ef-1376-4e51-933a-ba3f5f0ad57a}</Project>
-      <Name>Mathtone.MIST.TestNotifier</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Mathtone.MIST\Mathtone.MIST.csproj">
-      <Project>{a0625d95-3d4b-449d-8b13-a806c5f17ca7}</Project>
-      <Name>Mathtone.MIST</Name>
+      <Name>Mathtone.MIST.Tests.TestNotifier</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

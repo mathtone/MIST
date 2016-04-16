@@ -44,13 +44,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Mathtone.MIST.NotifierBase\Mathtone.MIST.NotifierBase.csproj">
-      <Project>{2b849608-bb74-456b-89c2-16abaa185718}</Project>
-      <Name>Mathtone.MIST.NotifierBase</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Mathtone.MIST\Mathtone.MIST.csproj">
+    <ProjectReference Include="..\..\Mathtone.MIST\Mathtone.MIST.csproj">
       <Project>{a0625d95-3d4b-449d-8b13-a806c5f17ca7}</Project>
       <Name>Mathtone.MIST</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mathtone.MIST.Tests.NotifierBase\Mathtone.MIST.Tests.NotifierBase.csproj">
+      <Project>{2b849608-bb74-456b-89c2-16abaa185718}</Project>
+      <Name>Mathtone.MIST.Tests.NotifierBase</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
