@@ -71,6 +71,10 @@
 		}
 	}
 
+	[Notifier(NotificationMode.Implicit)]
+	public class TestNotifier3<T> {
+		public T Value { get; set; }
+	}
 	/*
 	 .method public hidebysig specialname instance void 
         set_Value(string 'value') cil managed
@@ -122,7 +126,7 @@
 		}
 
 		public string Value2 {
-			get;set;
+			get; set;
 		}
 
 		//[NotifyTarget]

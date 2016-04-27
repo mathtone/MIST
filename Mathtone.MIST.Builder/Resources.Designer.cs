@@ -61,7 +61,7 @@ namespace Mathtone.MIST {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Errors encountered processing type: {0].
+        ///   Looks up a localized string similar to Errors encountered processing type: {0}.
         /// </summary>
         internal static string BuildTaskError {
             get {
