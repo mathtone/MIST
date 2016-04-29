@@ -29,59 +29,32 @@ namespace Mathtone.MIST.Tests {
 		}
 
 		[TestMethod]
-		public void TestNotifier() {
+		public void TestNotificationImplementation() {
 
-			var notifier = new TestNotifier();
 			var changedProps = new List<string>();
+			var notifiers = new ITestNotifier[] {
+				new TestNotifier1(),
+				new TestNotifier2()
+			};
 
-			WriteLine("Testing Notifier...");
+			var expectedChanges = new[] { "Value1", "Value2", "Value3", "Value1", "Value2", "Value3" };
 
 			PropertyChangedEventHandler handler = (a, b) => {
 				changedProps.Add(b.PropertyName);
 			};
 
-			notifier.PropertyChanged += handler;
-			notifier.Nested.PropertyChanged += handler;
-
-			notifier.Change1 = "";
-			notifier.Change2 = "";
-			notifier.ChangeAll = "";
-			notifier.ChangeNone = "";
-			notifier.Nested.Change1 = 1;
-			notifier.Nested.Change2 = 2;
-
-			Assert.IsTrue(changedProps.SequenceEqual(
-				new[] {
-					"Change1",
-					"Change2",
-					"Change1",
-					"Change2",
-					"ReadOnly",
-					"-Change1",
-					"-Change2"
-				}
-			));
-
-			notifier.PropertyChanged -= handler;
-			notifier.Nested.PropertyChanged -= handler;
-		}
-
-		[TestMethod]
-		public void TestNotifier2() {
-			var notifier = new TestNotifier2();
-			var changedProps = new List<string>();
-
-			WriteLine("Testing Notifier...");
-
-			PropertyChangedEventHandler handler = (a, b) => {
-				changedProps.Add(b.PropertyName);
-			};
-			notifier.PropertyChanged += handler;
-			notifier.Value = "A";
-			notifier.Value = "B";
-			Assert.IsTrue(changedProps.SequenceEqual(new[] { "Value","Value" }));
-			
-			notifier.PropertyChanged -= handler;
+			foreach (var notifier in notifiers) {
+				WriteLine($"Testing notifier: {notifier.GetType().Name}");
+				changedProps.Clear();
+				notifier.PropertyChanged += handler;
+				notifier.Value1 = "ONE";
+				notifier.Value2 = 1;
+				notifier.Value3 = 2;
+				notifier.Supressed = 1;
+				notifier.All = 1;
+				notifier.PropertyChanged -= handler;
+				Assert.IsTrue(changedProps.SequenceEqual(expectedChanges));
+			}
 		}
 	}
 }

@@ -147,15 +147,15 @@ namespace Mathtone.MIST {
 						case 1:
 							isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName;
 							break;
-						case 2:
-							isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
-								methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName;
-							break;
-						case 3:
-							isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
-								methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName &&
-								methDef.Parameters[2].ParameterType.FullName == typeof(object).FullName;
-							break;
+						//case 2:
+						//	isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
+						//		methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName;
+						//	break;
+						//case 3:
+						//	isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
+						//		methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName &&
+						//		methDef.Parameters[2].ParameterType.FullName == typeof(object).FullName;
+						//	break;
 					}
 					if (isValid) {
 						return methDef;
@@ -251,21 +251,6 @@ namespace Mathtone.MIST {
 		/// <param name="notifyPropertyNames">The notify property names.</param>
 		protected static void InsertNotificationsIntoProperty(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames) {
 
-			//Should produce something like the following:
-			/*
-			.method public hidebysig specialname instance void 
-			.set_SomeProperty(string 'value') cil managed
-			{
-			  .custom instance void [mscorlib]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = ( 01 00 00 00 ) 
-			  // Code size       8 (0x8)
-			  .maxstack  8
-			  IL_0000:  ldarg.0
-			  IL_0001:  ldarg.1
-			  IL_0002:  stfld      string Mathtone.MIST.Tests.TestNotifier::'<SomeProperty>k__BackingField'
-			  IL_0007:  ret
-			} // end of method TestNotifier::set_SomeProperty
-			*/
-
 			if (propDef.SetMethod == null)
 				//This is a read-only property
 				return;
@@ -313,72 +298,41 @@ namespace Mathtone.MIST {
 							msil.Create(OpCodes.Nop)
 						};
 						break;
-					case 2:
-						endInstructions = new[] {
-							msil.Create(OpCodes.Ldarg_0),
-							propertyName,
-							msil.Create(OpCodes.Ldarg_1),
-							msil.Create(OpCodes.Call, notifyTarget),
-							msil.Create(OpCodes.Nop)
-						};
-						break;
-					case 3:
-						//this one is a little more complicated
-						var variableType = propDef.SetMethod.Parameters[0].ParameterType;
-						var variableDef = new VariableDefinition($"f__{propDef.Name}_temp", variableType);
-						propDef.SetMethod.Body.Variables.Add(variableDef);
+					//This works, but allowing this simply create too many questions.  Eliminating these options in favor of simplicity.
+					//In the future I will 
+					//case 2:
+					//	endInstructions = new[] {
+					//		msil.Create(OpCodes.Ldarg_0),
+					//		propertyName,
+					//		msil.Create(OpCodes.Ldarg_1),
+					//		msil.Create(OpCodes.Call, notifyTarget),
+					//		msil.Create(OpCodes.Nop)
+					//	};
+					//	break;
+					//case 3:
+					//	//this one is a little more complicated
+					//	//Create a local variable and set it to the current value of the property.
+					//	var variableType = propDef.SetMethod.Parameters[0].ParameterType;
+					//	var variableDef = new VariableDefinition($"f__{propDef.Name}_temp", variableType);
+					//	propDef.SetMethod.Body.Variables.Add(variableDef);
+					//	beginInstructions = new[] {
+					//		msil.Create(OpCodes.Ldarg_0),
+					//		msil.Create(OpCodes.Call,propDef.GetMethod),
+					//		msil.Create(OpCodes.Stloc_0)
+					//	};
 
-						beginInstructions = new[] {
-							msil.Create(OpCodes.Ldarg_0),
-							msil.Create(OpCodes.Call,propDef.GetMethod),
-							msil.Create(OpCodes.Stloc_0)
-						};
-						endInstructions = new[] {
-							msil.Create(OpCodes.Ldarg_0),
-							propertyName,
-							msil.Create(OpCodes.Ldloc_0),
-							msil.Create(OpCodes.Ldarg_1),
-							msil.Create(OpCodes.Call, notifyTarget),
-							msil.Create(OpCodes.Nop)
-						};
-						/*
-						.method public hidebysig specialname instance void 
-								set_Value(string 'value') cil managed
-						{
-						  // Code size       28 (0x1c)
-						  .maxstack  4
-						  .locals init ([0] string old_value)
-						  IL_0000:  ldarg.0
-						  IL_0001:  call       instance string Mathtone.MIST.Tests.TestNotifier2::get_Value()
-						  IL_0006:  stloc.0
-						  IL_0007:  ldarg.0
-						  IL_0008:  ldarg.1
-						  IL_0009:  stfld      string Mathtone.MIST.Tests.TestNotifier2::'value'
-						  IL_000e:  ldarg.0
-						  IL_000f:  ldstr      "FEH"
-						  IL_0014:  ldloc.0
-						  IL_0015:  ldarg.1
-						  IL_0016:  call       instance void Mathtone.MIST.Tests.TestNotifier2::OnNotify3(string,
-																										  object,
-																										  object)
-						  IL_001b:  ret
-						} // end of method TestNotifier2::set_Value
-						 */
-
-
-
-						//propDef.GetMethod
-						//endInstructions = new[] {
-						//	msil.Create(OpCodes.Ldarg_0),
-						//	propertyName,
-						//	//msil.Create(OpCodes.Ldarg_1),
-						//	//propertyName,
-						//	msil.Create(OpCodes.Ldarg_1),
-						//	msil.Create(OpCodes.Call, notifyTarget),
-						//	msil.Create(OpCodes.Nop)
-						//};
-						break;
-					default: throw new InvalidNotifyTargetException(notifyTarget.FullName);
+					//	//Pass propertyname, oldValue and newValue
+					//	endInstructions = new[] {
+					//		msil.Create(OpCodes.Ldarg_0),
+					//		propertyName,
+					//		msil.Create(OpCodes.Ldloc_0),
+					//		msil.Create(OpCodes.Ldarg_1),
+					//		msil.Create(OpCodes.Call, notifyTarget),
+					//		msil.Create(OpCodes.Nop)
+					//	};
+					//	break;
+					default:
+						throw new InvalidNotifyTargetException(notifyTarget.FullName);
 				}
 
 				var insertionPoint = methodBody.Instructions[methodBody.Instructions.Count - 1];
