@@ -45,9 +45,18 @@
 		public string ChangeNull { get; set; }
 	}
 
-	[Notifier(NotificationMode.Implicit)]
+	[Notifier(NotificationMode.Explicit)]
 	public class TestNotifier2 : NotifierBase {
-
+		//string value;
+		//public string Value {
+		//	get { return value; }
+		//	set {
+		//		var old_value = this.Value;
+		//		this.value = value;
+		//		OnNotify3("FEH",old_value, value);
+		//	}
+		//}
+		[Notify]
 		public string Value { get; set; }
 
 		//[NotifyTarget]
@@ -55,7 +64,7 @@
 			base.RaisePropertyChanged(null);
 		}
 
-		[NotifyTarget]
+		//[NotifyTarget]
 		void OnNotify1(string propertyName) {
 			base.RaisePropertyChanged(propertyName);
 		}
@@ -65,16 +74,16 @@
 			base.RaisePropertyChanged(propertyName);
 		}
 
-		//[NotifyTarget]
-		void OnNotify(string propertyName, object oldValue, object newValue) {
+		[NotifyTarget]
+		void OnNotify3(string propertyName, object oldValue, object newValue) {
 			base.RaisePropertyChanged(propertyName);
 		}
 	}
 
-	[Notifier(NotificationMode.Implicit)]
-	public class TestNotifier3<T> {
-		public T Value { get; set; }
-	}
+	//[Notifier(NotificationMode.Implicit)]
+	//public class TestNotifier3<T>:NotifierBase {
+	//	public T Value { get; set; }
+	//}
 	/*
 	 .method public hidebysig specialname instance void 
         set_Value(string 'value') cil managed

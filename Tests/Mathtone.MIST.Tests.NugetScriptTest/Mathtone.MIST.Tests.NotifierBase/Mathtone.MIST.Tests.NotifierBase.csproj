@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EE44F332-2282-4E09-BFFD-F2A9CCE8D916}</ProjectGuid>
+    <ProjectGuid>{2B849608-BB74-456B-89C2-16ABAA185718}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Mathtone.MIST.Tests.NugetScriptTest</RootNamespace>
-    <AssemblyName>Mathtone.MIST.Tests.NugetScriptTest</AssemblyName>
+    <RootNamespace>Mathtone.MIST.NotifierBase</RootNamespace>
+    <AssemblyName>Mathtone.MIST.NotifierBase</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,10 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mathtone.MIST, Version=1.0.5948.25597, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mathtone.MIST.1.1.0\lib\Mathtone.MIST.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,15 +40,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TestClass.cs" />
+    <Compile Include="NotifierBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\..\Mathtone.MIST\Mathtone.MIST.csproj">
+      <Project>{a0625d95-3d4b-449d-8b13-a806c5f17ca7}</Project>
+      <Name>Mathtone.MIST</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <UsingTask TaskName="Mathtone.MIST.NotificationWeaverBuildTask" AssemblyFile="..\..\packages\Mathtone.MIST.1.1.0\tools\Mathtone.MIST.Builder.dll" />
-  <Target Name="AfterBuild">
-    <NotificationWeaverBuildTask TargetPath="$(TargetPath)" DebugMode="True" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
   </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
 </Project>

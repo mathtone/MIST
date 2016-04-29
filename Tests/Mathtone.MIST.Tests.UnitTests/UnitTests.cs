@@ -77,9 +77,9 @@ namespace Mathtone.MIST.Tests {
 				changedProps.Add(b.PropertyName);
 			};
 			notifier.PropertyChanged += handler;
-
-			notifier.Value = "";
-			Assert.IsTrue(changedProps.SequenceEqual(new[] { "Value" }));
+			notifier.Value = "A";
+			notifier.Value = "B";
+			Assert.IsTrue(changedProps.SequenceEqual(new[] { "Value","Value" }));
 			
 			notifier.PropertyChanged -= handler;
 		}

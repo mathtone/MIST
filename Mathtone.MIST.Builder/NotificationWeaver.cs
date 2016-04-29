@@ -141,29 +141,22 @@ namespace Mathtone.MIST {
 				if (ContainsAttribute(methDef, NotifyTargetName)) {
 					var isValid = false;
 					switch (methDef.Parameters.Count) {
-						//case 0:
-						//	isValid = true;
-						//	break;
+						case 0:
+							isValid = true;
+							break;
 						case 1:
 							isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName;
 							break;
-						//case 2:
-						//	isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
-						//		methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName;
-						//	break;
-						//case 3:
-						//	isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
-						//		methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName &&
-						//		methDef.Parameters[2].ParameterType.FullName == typeof(object).FullName;
-						//	break;
+						case 2:
+							isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
+								methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName;
+							break;
+						case 3:
+							isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
+								methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName &&
+								methDef.Parameters[2].ParameterType.FullName == typeof(object).FullName;
+							break;
 					}
-					//Verify target method has an appropriate signature
-					//if (methDef.Parameters.Count == 1) {
-					//	var parameterType = methDef.Parameters[0].ParameterType.FullName;
-					//	if (parameterType == typeof(string).FullName) {
-					//		return methDef;
-					//	}
-					//}
 					if (isValid) {
 						return methDef;
 					}
@@ -175,7 +168,9 @@ namespace Mathtone.MIST {
 
 			//Notify target not found, search base type
 			var baseType = typeDef.BaseType;
+
 			if (baseType != null) {
+
 				//Get the definition of the base type
 				var baseTypeDef = mdResolver.Resolve(baseType);
 
@@ -183,6 +178,7 @@ namespace Mathtone.MIST {
 				var rtn = GetNotifyTarget(baseTypeDef);
 
 				if (rtn != null) {
+
 					//A target has been found, import a reference to the target method;
 					rtn = typeDef.Module.ImportReference(rtn);
 				}
@@ -290,7 +286,7 @@ namespace Mathtone.MIST {
 			//Call the notification tareget method for 
 			foreach (var notifyPropertyName in notifyPropertyNames) {
 
-				var startInstructions = new Instruction[0];
+				var beginInstructions = new Instruction[0];
 				var endInstructions = new Instruction[0];
 
 				//Load the value of the property name to be passed to the notify target onto the stack.
@@ -302,7 +298,13 @@ namespace Mathtone.MIST {
 				//Emit a call to the notify target
 				var callNotifyTarget = msil.Create(OpCodes.Call, notifyTarget);
 				switch (notifyTarget.Parameters.Count) {
-					//case 0: break;
+					case 0:
+						endInstructions = new[] {
+							msil.Create(OpCodes.Ldarg_0),
+							msil.Create(OpCodes.Call, notifyTarget),
+							msil.Create(OpCodes.Nop)
+						};
+						break;
 					case 1:
 						endInstructions = new[] {
 							msil.Create(OpCodes.Ldarg_0),
@@ -311,12 +313,78 @@ namespace Mathtone.MIST {
 							msil.Create(OpCodes.Nop)
 						};
 						break;
+					case 2:
+						endInstructions = new[] {
+							msil.Create(OpCodes.Ldarg_0),
+							propertyName,
+							msil.Create(OpCodes.Ldarg_1),
+							msil.Create(OpCodes.Call, notifyTarget),
+							msil.Create(OpCodes.Nop)
+						};
+						break;
+					case 3:
+						//this one is a little more complicated
+						var variableType = propDef.SetMethod.Parameters[0].ParameterType;
+						var variableDef = new VariableDefinition($"f__{propDef.Name}_temp", variableType);
+						propDef.SetMethod.Body.Variables.Add(variableDef);
+
+						beginInstructions = new[] {
+							msil.Create(OpCodes.Ldarg_0),
+							msil.Create(OpCodes.Call,propDef.GetMethod),
+							msil.Create(OpCodes.Stloc_0)
+						};
+						endInstructions = new[] {
+							msil.Create(OpCodes.Ldarg_0),
+							propertyName,
+							msil.Create(OpCodes.Ldloc_0),
+							msil.Create(OpCodes.Ldarg_1),
+							msil.Create(OpCodes.Call, notifyTarget),
+							msil.Create(OpCodes.Nop)
+						};
+						/*
+						.method public hidebysig specialname instance void 
+								set_Value(string 'value') cil managed
+						{
+						  // Code size       28 (0x1c)
+						  .maxstack  4
+						  .locals init ([0] string old_value)
+						  IL_0000:  ldarg.0
+						  IL_0001:  call       instance string Mathtone.MIST.Tests.TestNotifier2::get_Value()
+						  IL_0006:  stloc.0
+						  IL_0007:  ldarg.0
+						  IL_0008:  ldarg.1
+						  IL_0009:  stfld      string Mathtone.MIST.Tests.TestNotifier2::'value'
+						  IL_000e:  ldarg.0
+						  IL_000f:  ldstr      "FEH"
+						  IL_0014:  ldloc.0
+						  IL_0015:  ldarg.1
+						  IL_0016:  call       instance void Mathtone.MIST.Tests.TestNotifier2::OnNotify3(string,
+																										  object,
+																										  object)
+						  IL_001b:  ret
+						} // end of method TestNotifier2::set_Value
+						 */
+
+
+
+						//propDef.GetMethod
+						//endInstructions = new[] {
+						//	msil.Create(OpCodes.Ldarg_0),
+						//	propertyName,
+						//	//msil.Create(OpCodes.Ldarg_1),
+						//	//propertyName,
+						//	msil.Create(OpCodes.Ldarg_1),
+						//	msil.Create(OpCodes.Call, notifyTarget),
+						//	msil.Create(OpCodes.Nop)
+						//};
+						break;
+					default: throw new InvalidNotifyTargetException(notifyTarget.FullName);
 				}
 
 				var insertionPoint = methodBody.Instructions[methodBody.Instructions.Count - 1];
 
 				//Insert IL instructions before end of method body
-				InsertBefore(msil, startInstructions, begin);
+				InsertBefore(msil, beginInstructions, begin);
 				InsertBefore(msil, endInstructions, insertionPoint);
 			}
 		}
