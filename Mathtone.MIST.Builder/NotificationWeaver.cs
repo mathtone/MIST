@@ -336,13 +336,9 @@ namespace Mathtone.MIST {
 				}
 
 				//Insert IL instructions before end of method body
-
 				//what I really need to do here is find all return statements in the method and raise notification there, this is a little more complicated.
-				//var insertionPoint = methodBody.Instructions[methodBody.Instructions.Count - 1];
+				//...Also any statements that branch to them and make correction.
 				var returnPoints = methodBody.Instructions.Where(a => a.OpCode == OpCodes.Ret).ToArray();
-
-				//InsertBefore(msil, beginInstructions, begin);
-
 				foreach (var instruction in returnPoints) {
 
 					InsertBefore(msil, endInstructions, instruction);
@@ -351,12 +347,8 @@ namespace Mathtone.MIST {
 					foreach (var b in branches) {
 						b.Operand = branchTarget;
 					}
-					;
-					//foreach(var branchInstruction in methodBody.Instructions.Where(a=>a.OpCode == OpCodes.Br && a.))
 				}
 
-
-				//InsertBefore(msil, endInstructions, insertionPoint);
 			}
 		}
 
