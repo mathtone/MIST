@@ -147,15 +147,15 @@ namespace Mathtone.MIST {
 						case 1:
 							isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName;
 							break;
-						//case 2:
-						//	isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
-						//		methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName;
-						//	break;
-						//case 3:
-						//	isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
-						//		methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName &&
-						//		methDef.Parameters[2].ParameterType.FullName == typeof(object).FullName;
-						//	break;
+							//case 2:
+							//	isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
+							//		methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName;
+							//	break;
+							//case 3:
+							//	isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
+							//		methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName &&
+							//		methDef.Parameters[2].ParameterType.FullName == typeof(object).FullName;
+							//	break;
 					}
 					if (isValid) {
 						return methDef;
@@ -268,7 +268,7 @@ namespace Mathtone.MIST {
 			var begin = msil.Create(OpCodes.Nop);
 			msil.InsertBefore(methodBody.Instructions[0], begin);
 
-			//Call the notification tareget method for 
+			//Call the notification target method for 
 			foreach (var notifyPropertyName in notifyPropertyNames) {
 
 				var beginInstructions = new Instruction[0];
@@ -335,11 +335,28 @@ namespace Mathtone.MIST {
 						throw new InvalidNotifyTargetException(notifyTarget.FullName);
 				}
 
-				var insertionPoint = methodBody.Instructions[methodBody.Instructions.Count - 1];
-
 				//Insert IL instructions before end of method body
-				InsertBefore(msil, beginInstructions, begin);
-				InsertBefore(msil, endInstructions, insertionPoint);
+
+				//what I really need to do here is find all return statements in the method and raise notification there, this is a little more complicated.
+				//var insertionPoint = methodBody.Instructions[methodBody.Instructions.Count - 1];
+				var returnPoints = methodBody.Instructions.Where(a => a.OpCode == OpCodes.Ret).ToArray();
+
+				//InsertBefore(msil, beginInstructions, begin);
+
+				foreach (var instruction in returnPoints) {
+
+					InsertBefore(msil, endInstructions, instruction);
+					var branches = methodBody.Instructions.Where(a => a.OpCode == OpCodes.Br_S && a.Operand == instruction).ToArray();
+					var branchTarget = endInstructions[0];
+					foreach (var b in branches) {
+						b.Operand = branchTarget;
+					}
+					;
+					//foreach(var branchInstruction in methodBody.Instructions.Where(a=>a.OpCode == OpCodes.Br && a.))
+				}
+
+
+				//InsertBefore(msil, endInstructions, insertionPoint);
 			}
 		}
 

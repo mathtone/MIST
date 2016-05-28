@@ -11,6 +11,9 @@ namespace Mathtone.MIST.Tests {
 	[TestClass]
 	public class UnitTests {
 
+		//****************
+		//NOTE: Clean and rebuild the solution when these tests are run otherwise notifications will be implemented twice and the tests will fail.
+		//****************
 		static bool initialized;
 
 		static string ApplicationPath {
@@ -34,7 +37,8 @@ namespace Mathtone.MIST.Tests {
 			var changedProps = new List<string>();
 			var notifiers = new ITestNotifier[] {
 				new TestNotifier1(),
-				new TestNotifier2()
+				new TestNotifier2(),
+				new TestNotifier3()
 			};
 
 			var expectedChanges = new[] { "Value1", "Value2", "Value3", "Value1", "Value2", "Value3" };
@@ -50,8 +54,8 @@ namespace Mathtone.MIST.Tests {
 				notifier.Value1 = "ONE";
 				notifier.Value2 = 1;
 				notifier.Value3 = 2;
-				notifier.Supressed = 1;
-				notifier.All = 1;
+				notifier.Supressed = 3;
+				notifier.All = 4;
 				notifier.PropertyChanged -= handler;
 				Assert.IsTrue(changedProps.SequenceEqual(expectedChanges));
 			}

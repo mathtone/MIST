@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace Mathtone.MIST.Tests.NugetScriptTest {
 	[Notifier]
 	public class TestClass {
+
 		[Notify]
 		public string Test { get; set; }
 
