@@ -30,6 +30,7 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="Install.ps1" />
+    <Compile Include="Uninstall.ps1" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />

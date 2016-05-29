@@ -298,6 +298,7 @@ namespace Mathtone.MIST {
 							msil.Create(OpCodes.Nop)
 						};
 						break;
+
 					//This works, but allowing this simply create too many questions.  Eliminating these options in favor of simplicity.
 					//In the future I will 
 					//case 2:
@@ -331,12 +332,13 @@ namespace Mathtone.MIST {
 					//		msil.Create(OpCodes.Nop)
 					//	};
 					//	break;
+
 					default:
 						throw new InvalidNotifyTargetException(notifyTarget.FullName);
 				}
 
 				//Insert IL instructions before end of method body
-				//what I really need to do here is find all return statements in the method and raise notification there, this is a little more complicated.
+				//Find all return statements in the method and raise notification there, this is a little more complicated.
 				//...Also any statements that branch to them and make correction.
 				var returnPoints = methodBody.Instructions.Where(a => a.OpCode == OpCodes.Ret).ToArray();
 				foreach (var instruction in returnPoints) {
@@ -344,6 +346,7 @@ namespace Mathtone.MIST {
 					InsertBefore(msil, endInstructions, instruction);
 					var branches = methodBody.Instructions.Where(a => a.OpCode == OpCodes.Br_S && a.Operand == instruction).ToArray();
 					var branchTarget = endInstructions[0];
+
 					foreach (var b in branches) {
 						b.Operand = branchTarget;
 					}

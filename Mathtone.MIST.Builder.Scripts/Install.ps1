@@ -3,9 +3,9 @@
 #
 #This script is a little ratchet but I'm not a powershell expert
 param($installPath, $toolsPath, $package, $project)
-#$project.Save()
-#$project = $project.FullName
-#$project = $project.FullName
+$project.Save()
+$project = $project.FullName
+
 
 function get-relative-path ($source, $target)
 {

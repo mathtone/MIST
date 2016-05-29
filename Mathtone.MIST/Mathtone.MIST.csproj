@@ -63,6 +63,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mathtone.MIST, Version=1.0.5963.28665, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mathtone.MIST.1.1.5\lib\Mathtone.MIST.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -76,6 +80,9 @@
     <Compile Include="Attributes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -84,4 +91,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="NotificationWeaverBuildTask">
+    <NotificationWeaverBuildTask TargetPath="$(TargetPath)" DebugMode="True" />
+  </Target>
+  <UsingTask TaskName="Mathtone.MIST.NotificationWeaverBuildTask" AssemblyFile="..\packages\Mathtone.MIST.1.1.5\tools\Mathtone.MIST.Builder.dll" />
 </Project>
