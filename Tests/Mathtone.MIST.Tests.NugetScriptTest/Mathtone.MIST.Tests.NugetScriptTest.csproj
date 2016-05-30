@@ -63,6 +63,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mathtone.MIST, Version=1.0.5992.39007, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Mathtone.MIST.1.2.1\lib\net46\Mathtone.MIST.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -76,9 +80,12 @@
     <Compile Include="TestClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="NotificationWeaverBuildTask">
+  <UsingTask TaskName="Mathtone.MIST.NotificationWeaverBuildTask" AssemblyFile="..\..\packages\Mathtone.MIST.1.2.1\tools\net46\Mathtone.MIST.Builder.dll" />
+  <Target Name="AfterBuild">
     <NotificationWeaverBuildTask TargetPath="$(TargetPath)" DebugMode="True" />
   </Target>
-  <UsingTask TaskName="Mathtone.MIST.NotificationWeaverBuildTask" AssemblyFile="..\..\packages\Mathtone.MIST.1.1.5\tools\Mathtone.MIST.Builder.dll" />
 </Project>

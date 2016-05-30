@@ -3,8 +3,9 @@
 #
 #This script is a little ratchet but I'm not a powershell expert
 param($installPath, $toolsPath, $package, $project)
-$project.Save()
-$project = $project.FullName
+#$project.Save()
+#$project = $project.FullName
+
 
 
 function get-relative-path ($source, $target)
@@ -18,12 +19,13 @@ function get-relative-path ($source, $target)
 }
 
 function verify-UsingTask([System.Xml.XmlDocument] $projectDocument, $projectDir, $toolsPath){
+	Write-Host "Verifying task assembly reference...";
 	$found = $false
 	$relpath = get-relative-path $projectDir $toolsPath
 	$dllPath = ($relpath + "\Mathtone.MIST.Builder.dll")
 	Write-Host $dllPath
 	ForEach ($node In $projectDocument.Project.UsingTask) {
-		if($node.TaskName = "Mathtone.MIST.NotificationWeaverBuildTask"){
+		if($node.TaskName -eq "Mathtone.MIST.NotificationWeaverBuildTask"){
 			$found = $true
 			$node.AssemblyFile = $dllPath
 			Write-Host ("Build task already referenced.  Updated to: " + $node.AssemblyFile)
@@ -35,16 +37,19 @@ function verify-UsingTask([System.Xml.XmlDocument] $projectDocument, $projectDir
 }
 
 function verify-BuildTask([System.Xml.XmlDocument] $projectDocument){
+	Write-Host "Verifying build task...";
 	$found = $false
 	ForEach ($target In $projectDocument.Project.Target) {
-		if($target.Name = "AfterBuild"){
-			ForEach ($buildTask In $target) {
-				if($buildTask.Name = "NotificationWeaverBuildTask"){
+		if($target.Name -eq "AfterBuild"){
+			ForEach($buildTask In $target){
+				if($buildTask.NotificationWeaverBuildTask -ne $null){
+					Write-Host "Found NotificationWeaverBuildTask"
 					$found = $true
 				}
 			}
 		}
 	}
+	
 	if(!$found){
 		Write-Host "Adding build task to project...";
 		$targetElem = $projectDocument.CreateElement("Target","http://schemas.microsoft.com/developer/msbuild/2003")

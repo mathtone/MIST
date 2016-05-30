@@ -8,7 +8,7 @@
     <RootNamespace>MyApplication</RootNamespace>
     <AssemblyName>MyApplication</AssemblyName>
     <Name>Mathtone.MIST.Builder.Scripts</Name>
-    <DebugArguments>"D:\Mike\Software Projects\Mathtone.Mist\MIST\packages\Mathtone.MIST.1.1.0" "D:\Mike\Software Projects\Mathtone.Mist\MIST\packages\Mathtone.MIST.1.1.0\tools" "Mathtone.MIST" "D:\Mike\Software Projects\Mathtone.Mist\MIST\Tests\Mathtone.MIST.Tests.NugetScriptTest\Mathtone.MIST.Tests.NugetScriptTest.csproj"</DebugArguments>
+    <DebugArguments>"D:\Mike\Software Projects\Mathtone.Mist\MIST\packages\Mathtone.MIST.1.2.1" "D:\Mike\Software Projects\Mathtone.Mist\MIST\packages\Mathtone.MIST.1.2.1\tools" "Mathtone.MIST" "D:\Mike\Software Projects\Mathtone.Mist\MIST\Tests\Mathtone.MIST.Tests.NugetScriptTest\Mathtone.MIST.Tests.NugetScriptTest.csproj"</DebugArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
