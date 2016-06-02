@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
+//using System.Reflection;
 
 namespace Mathtone.MIST {
 	/// <summary>
@@ -22,7 +22,7 @@ namespace Mathtone.MIST {
 		DefaultAssemblyResolver resolver;
 		MetadataResolver mdResolver;
 
-		string ApplicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+		string ApplicationPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="NotificationWeaver"/> class.
@@ -69,7 +69,6 @@ namespace Mathtone.MIST {
 			if (mustSave) {
 				using (var stream = File.OpenWrite(assemblyPath)) {
 					assemblyDef.Write(stream, writeParameters);
-					stream.Flush();
 				}
 			}
 		}
@@ -222,11 +221,11 @@ namespace Mathtone.MIST {
 				if (attr.HasConstructorArguments) {
 					var args = attr.ConstructorArguments[0].Value as CustomAttributeArgument[];
 					if (args == null) {
-						//Argument is null
+						//Argument is null.
 						yield return null;
 					}
 					else if (args.Length == 0) {
-						//Apparently the user saw reason to pass an empty array.
+						//Property names not specified.
 						yield return propDef.Name;
 					}
 					else {
@@ -243,13 +242,56 @@ namespace Mathtone.MIST {
 			}
 		}
 
+		protected static void InsertNotificationsIntoProperty(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames) {
+			if (propDef.SetMethod == null)
+				//This is a read-only property, there's nothing to do.
+				return;
+			else if (propDef.SetMethod.Body == null) {
+				//This is an abstract property, we don't do these either.
+				throw new InvalidNotifierException();
+			}
+
+			var setMeth = propDef.SetMethod;
+			var newMeth = new MethodDefinition(setMeth.Name, setMeth.Attributes, setMeth.ReturnType);
+			var msil = newMeth.Body.GetILProcessor();
+			var instructions = new List<Instruction>();
+
+			newMeth.Name = setMeth.Name;
+			newMeth.DeclaringType = setMeth.DeclaringType;
+			newMeth.Parameters.Add(new ParameterDefinition(setMeth.Parameters[0].ParameterType));
+
+			instructions.AddRange(new[] {
+				msil.Create(OpCodes.Ldarg_0),
+				msil.Create(OpCodes.Ldarg_1),
+				msil.Create(OpCodes.Call, setMeth)
+			});
+
+			foreach (var notifyPropertyName in notifyPropertyNames) {
+				instructions.AddRange(new[] {
+					msil.Create(OpCodes.Ldarg_0),
+					msil.Create(OpCodes.Ldstr, notifyPropertyName),
+					msil.Create(OpCodes.Call, notifyTarget),
+					msil.Create(OpCodes.Nop)
+				});
+			}
+
+			foreach (var i in instructions) {
+				newMeth.Body.Instructions.Add(i);
+			}
+
+			newMeth.Body.Instructions.Add(msil.Create(OpCodes.Ret));
+			setMeth.Name = setMeth.Name + "`Impl";
+			propDef.SetMethod = newMeth;
+			newMeth.DeclaringType.Methods.Add(newMeth);
+		}
+
 		/// <summary>
 		/// Weaves notifiers into the property.  This is where the magic happens.
 		/// </summary>
 		/// <param name="propDef">The property definition.</param>
 		/// <param name="notifyTarget">The notify target.</param>
 		/// <param name="notifyPropertyNames">The notify property names.</param>
-		protected static void InsertNotificationsIntoProperty(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames) {
+		protected static void InsertNotificationsIntoProperty2(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames) {
 
 			if (propDef.SetMethod == null)
 				//This is a read-only property

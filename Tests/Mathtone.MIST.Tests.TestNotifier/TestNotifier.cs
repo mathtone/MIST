@@ -16,6 +16,7 @@ namespace Mathtone.MIST.Tests {
 
 		[Notify]
 		public string Value1 { get; set; }
+
 		[Notify]
 		public int Value2 { get; set; }
 		[Notify]
@@ -45,7 +46,6 @@ namespace Mathtone.MIST.Tests {
 	public class TestNotifier3 : NotifierBase, ITestNotifier {
 		string value1;
 		int value2, value3;
-
 		public string Value1 {
 			get {
 				return value1;
@@ -69,7 +69,6 @@ namespace Mathtone.MIST.Tests {
 			}
 			set {
 				if (value % 2 == 0) {
-					//value3 = value;
 					return;
 				}
 				else {
