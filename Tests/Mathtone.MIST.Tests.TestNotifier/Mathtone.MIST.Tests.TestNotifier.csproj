@@ -73,6 +73,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ImplicitSpy.cs" />
     <Compile Include="Explicit_OneArgSpy.cs" />
     <Compile Include="TestNotifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

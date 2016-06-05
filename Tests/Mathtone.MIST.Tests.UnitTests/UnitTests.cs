@@ -86,6 +86,17 @@ namespace Mathtone.MIST.Tests {
             CollectionAssert.AreEqual(expectedProperties, notifier.Notifications, $"Expected '{string.Join(",", expectedProperties)}' but got {string.Join(",", notifier.Notifications)}.");
         }
 
+        [TestMethod]
+        public void Implicit_notify_on_set()
+        {
+            var notifier = new TestNotifier.ImplicitSpy();
+
+            notifier.StringValue = "Value";
+            notifier.StringValue = "Value";
+
+            Assert.AreEqual(2, notifier.NumberOfNotifications);
+        }
+
         //[TestMethod]
         //public void Implicit_notify_on_change_No_args()
         //{
