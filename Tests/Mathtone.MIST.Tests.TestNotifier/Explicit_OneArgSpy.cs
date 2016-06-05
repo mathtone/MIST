@@ -9,6 +9,7 @@ namespace Mathtone.MIST.TestNotifier
     [Notifier]
     public class Explicit_OneArgSpy
     {
+        [SuppressNotify]
         public List<string> Notifications { get; private set; }
 
         [NotifyTarget]
