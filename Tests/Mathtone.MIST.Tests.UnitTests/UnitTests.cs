@@ -97,6 +97,18 @@ namespace Mathtone.MIST.Tests {
             Assert.AreEqual(2, notifier.NumberOfNotifications);
         }
 
+        [TestMethod]
+        public void Explicit_notify_on_change()
+        {
+            var notifier = new TestNotifier.ExplicitOnChangeSpy();
+
+            notifier.StringValue = "ONE";
+            Assert.AreEqual(1, notifier.NumberOfNotifications);
+
+            notifier.StringValue = "ONE";
+            Assert.AreEqual(1, notifier.NumberOfNotifications);
+        }
+
         //[TestMethod]
         //public void Implicit_notify_on_change_No_args()
         //{

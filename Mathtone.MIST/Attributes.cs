@@ -97,6 +97,6 @@ namespace Mathtone.MIST {
         /// <summary>
         /// Notifications are only called if the propertys backing variable is changed.
         /// </summary>
-        //OnChange,
+        OnChange,
     }
 }

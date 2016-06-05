@@ -17,6 +17,7 @@ namespace Mathtone.MIST {
 		string NotifyTargetName = typeof(NotifyTarget).FullName;
 		string NotifierTypeName = typeof(NotifierAttribute).FullName;
 		string NotifyTypeName = typeof(NotifyAttribute).FullName;
+        string NotifyModeName = typeof(NotifyMode).FullName;
 		string SuppressNotifyTypeName = typeof(SuppressNotifyAttribute).FullName;
 		string assemblyPath;
 		DefaultAssemblyResolver resolver;
@@ -108,7 +109,8 @@ namespace Mathtone.MIST {
                 foreach(var propDef in propertiesToNotifyForIn(typeDef, mode))
                 {
                     var propNames = GetNotifyPropertyNames(propDef);
-                    InsertNotificationsIntoProperty(propDef, notifyTarget, propNames);
+                    var notifyMode = NotifyModeOf(propDef);
+                    InsertNotificationsIntoProperty(propDef, notifyTarget, propNames, notifyMode);
                     rtn = true;
                 }
 			}
@@ -120,6 +122,21 @@ namespace Mathtone.MIST {
 
 			return rtn;
 		}
+
+        private NotifyMode NotifyModeOf(PropertyDefinition propDef)
+        {
+            var attr = propDef.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == NotifyTypeName);
+            if (attr == null || !attr.HasConstructorArguments)
+                return NotifyMode.OnSet;
+
+            if (!attr.ConstructorArguments.Where(x => x.Type.FullName == NotifyModeName).Any())
+                return NotifyMode.OnSet;
+
+            return (NotifyMode)attr.ConstructorArguments
+                .Where(x => x.Type.FullName == NotifyModeName)
+                .Select(x => x.Value)
+                .Single();
+        }
 
         private IEnumerable<PropertyDefinition> propertiesToNotifyForIn(TypeDefinition typeDef, NotificationMode mode)
         {
@@ -133,12 +150,12 @@ namespace Mathtone.MIST {
             }
         }
 
-        /// <summary>
-        /// Gets the notification target method, market with a <see cref="NotifyTarget"/> attribute.
-        /// </summary>
-        /// <param name="typeDef">The type definition.</param>
-        /// <returns>MethodReference.</returns>
-        protected MethodReference GetNotifyTarget(TypeDefinition typeDef) {
+		/// <summary>
+		/// Gets the notification target method, market with a <see cref="NotifyTarget"/> attribute.
+		/// </summary>
+		/// <param name="typeDef">The type definition.</param>
+		/// <returns>MethodReference.</returns>
+		protected MethodReference GetNotifyTarget(TypeDefinition typeDef) {
 
 			//Check each method for a NotifyTargetAttribute
 			foreach (var methDef in typeDef.Methods) {
@@ -212,9 +229,9 @@ namespace Mathtone.MIST {
 		public static bool ContainsAttribute(PropertyDefinition definition, string attributeTypeName) =>
 			definition.CustomAttributes.Any(a => a.AttributeType.FullName == attributeTypeName);
 
-        /// <summary>
-        /// Gets the property names that should be passed to the notification target method when the property value is changed.
-        /// </summary>
+		/// <summary>
+		/// Gets the property names that should be passed to the notification target method when the property value is changed.
+		/// </summary>
         /// <param name="propDef">The property definition.</param>
         /// <returns>IEnumerable&lt;System.String&gt;.</returns>
         IEnumerable<string> GetNotifyPropertyNames(PropertyDefinition propDef)
@@ -256,7 +273,7 @@ namespace Mathtone.MIST {
 		/// <param name="propDef">The property definition.</param>
 		/// <param name="notifyTarget">The notify target.</param>
 		/// <param name="notifyPropertyNames">The notify property names.</param>
-		protected static void InsertNotificationsIntoProperty(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames) {
+		protected static void InsertNotificationsIntoProperty(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames, NotifyMode notifyMode) {
 
             if (propDef.SetMethod == null)
 				//This is a read-only property
@@ -265,6 +282,12 @@ namespace Mathtone.MIST {
 				//This is an abstract property, we don't do these either.
 				throw new InvalidNotifierException();
 			}
+
+            if (IsAutoProperty(propDef))
+            {
+                RewriteAsAutoPropertyWithNotifications(propDef, notifyTarget, notifyPropertyNames, notifyMode);
+                return;
+            }
 
             var methodBody = propDef.SetMethod.Body;
 
@@ -327,7 +350,7 @@ namespace Mathtone.MIST {
             yield break;
         }
 
-        protected static IEnumerable<Instruction> EndInstructionsToCallMethod(ILProcessor msil, MethodReference method, string parameterName = null)
+        protected static IEnumerable<Instruction> EndInstructionsToCallMethod(ILProcessor msil, MethodReference method, string parameterName)
         {
             var methodCallInstruction = msil.Create(OpCodes.Call, method);
 
@@ -374,7 +397,67 @@ namespace Mathtone.MIST {
                     throw new InvalidNotifyTargetException(method.FullName);
             }
         }
-        
+
+        protected static bool IsAutoProperty(PropertyDefinition propDef)
+        {
+            if (AutoPropertyBackingFieldOf(propDef) == null)
+                return false;
+            return ReturnPointsOf(propDef).Count() == 1;
+        }
+
+        protected static IEnumerable<Instruction> ReturnPointsOf(PropertyDefinition propDef)
+        {
+            return propDef.SetMethod.Body
+                .Instructions
+                .Where(a => a.OpCode == OpCodes.Ret);
+        }
+
+        protected static FieldDefinition AutoPropertyBackingFieldOf(PropertyDefinition propDef)
+        {
+            var autoPropertyBackingFieldName = $"<{propDef.Name}>k__BackingField";
+            var autoPropertyBackingField = propDef.DeclaringType.Fields
+                .SingleOrDefault(field => field.Name == autoPropertyBackingFieldName);
+            return autoPropertyBackingField;
+        }
+
+        protected static void RewriteAsAutoPropertyWithNotifications(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames, NotifyMode notifyMode)
+        {
+            var autoPropertyBackingField = AutoPropertyBackingFieldOf(propDef);
+            var returnPoint = ReturnPointsOf(propDef).Single();
+
+            var methodBody = propDef.SetMethod.Body;
+            var msil = methodBody.GetILProcessor();
+
+            var nopInstruction = msil.Create(OpCodes.Nop);
+            msil.InsertBefore(methodBody.Instructions[0], nopInstruction);
+
+            if (notifyMode == NotifyMode.OnChange)
+            {
+                var instructionsToBranchToReturn = BranchIfNotChangedInstructions(propDef, autoPropertyBackingField, returnPoint, msil);
+                InsertAfter(msil, instructionsToBranchToReturn, nopInstruction);
+            }
+
+            var notificationsInstructions = new List<Instruction>();
+            foreach (var propertyName in notifyPropertyNames)
+            {
+                notificationsInstructions.AddRange(EndInstructionsToCallMethod(msil, notifyTarget, propertyName));
+            }
+            InsertBefore(msil, notificationsInstructions, returnPoint);
+        }
+
+        protected static Instruction[] BranchIfNotChangedInstructions(PropertyDefinition propDef, FieldDefinition autoPropertyBackingField, Instruction returnPoint, ILProcessor msil)
+        {
+            var stringInequality = propDef.Module.ImportReference(typeof(string).GetMethod("op_Inequality"));
+            return new[]
+            {
+                msil.Create(OpCodes.Ldarg_0),
+                msil.Create(OpCodes.Ldfld, autoPropertyBackingField),
+                msil.Create(OpCodes.Ldarg_1),
+                msil.Create(OpCodes.Call, stringInequality),
+                msil.Create(OpCodes.Brfalse_S, returnPoint),
+            };
+        }
+
         protected static void InsertAfter(ILProcessor ilProcessor, IEnumerable<Instruction> instructions, Instruction startPoint) {
 			var currentInstruction = startPoint;
 			foreach (var instruction in instructions) {
