@@ -278,71 +278,9 @@ namespace Mathtone.MIST {
             //Call the notification target method for 
             foreach (var notifyPropertyName in notifyPropertyNames) {
 
-				var beginInstructions = new Instruction[0];
-				var endInstructions = new Instruction[0];
-
-                //Load the value of the property name to be passed to the notify target onto the stack.
-                var propertyName = notifyPropertyName == null ?
-					msil.Create(OpCodes.Ldnull) :
-					msil.Create(OpCodes.Ldstr, notifyPropertyName);
-
-
                 //Emit a call to the notify target
-				var callNotifyTarget = msil.Create(OpCodes.Call, notifyTarget);
-				switch (notifyTarget.Parameters.Count) {
-					case 0:
-                        endInstructions = new[] {
-                            msil.Create(OpCodes.Ldarg_0),
-                            msil.Create(OpCodes.Call, notifyTarget),
-                            msil.Create(OpCodes.Nop)
-                        };
-                        break;
-					case 1:
-						endInstructions = new[] {
-							msil.Create(OpCodes.Ldarg_0),
-							propertyName,
-							msil.Create(OpCodes.Call, notifyTarget),
-							msil.Create(OpCodes.Nop)
-						};
-						break;
-
-					//This works, but allowing this simply create too many questions.  Eliminating these options in favor of simplicity.
-					//In the future I will 
-					//case 2:
-					//	endInstructions = new[] {
-					//		msil.Create(OpCodes.Ldarg_0),
-					//		propertyName,
-					//		msil.Create(OpCodes.Ldarg_1),
-					//		msil.Create(OpCodes.Call, notifyTarget),
-					//		msil.Create(OpCodes.Nop)
-					//	};
-					//	break;
-					//case 3:
-					//	//this one is a little more complicated
-					//	//Create a local variable and set it to the current value of the property.
-					//	var variableType = propDef.SetMethod.Parameters[0].ParameterType;
-					//	var variableDef = new VariableDefinition($"f__{propDef.Name}_temp", variableType);
-					//	propDef.SetMethod.Body.Variables.Add(variableDef);
-					//	beginInstructions = new[] {
-					//		msil.Create(OpCodes.Ldarg_0),
-					//		msil.Create(OpCodes.Call,propDef.GetMethod),
-					//		msil.Create(OpCodes.Stloc_0)
-					//	};
-
-					//	//Pass propertyname, oldValue and newValue
-					//	endInstructions = new[] {
-					//		msil.Create(OpCodes.Ldarg_0),
-					//		propertyName,
-					//		msil.Create(OpCodes.Ldloc_0),
-					//		msil.Create(OpCodes.Ldarg_1),
-					//		msil.Create(OpCodes.Call, notifyTarget),
-					//		msil.Create(OpCodes.Nop)
-					//	};
-					//	break;
-
-					default:
-						throw new InvalidNotifyTargetException(notifyTarget.FullName);
-				}
+                var beginInstructions = BeginInstructionsToCallMethodFrom(msil, propDef, notifyTarget).ToArray();
+                var endInstructions = EndInstructionsToCallMethod(msil, notifyTarget, notifyPropertyName).ToArray();
 
 				//Insert IL instructions before end of method body
 				//Find all return statements in the method and raise notification there, this is a little more complicated.
@@ -361,6 +299,81 @@ namespace Mathtone.MIST {
 
 			}
 		}
+
+        protected static IEnumerable<Instruction> BeginInstructionsToCallMethodFrom(ILProcessor msil, PropertyDefinition propDef, MethodReference method)
+        {
+            switch (method.Parameters.Count)
+            {
+                case 0:
+                case 1:
+                case 2:
+                    break;
+
+                //case 3:
+                //    //this one is a little more complicated
+                //    //Create a local variable and set it to the current value of the property.
+                //    var variableType = propDef.SetMethod.Parameters[0].ParameterType;
+                //    var variableDef = new VariableDefinition($"f__{propDef.Name}_temp", variableType);
+                //    propDef.SetMethod.Body.Variables.Add(variableDef);
+                //    yield return msil.Create(OpCodes.Ldarg_0);
+                //    yield return msil.Create(OpCodes.Call, propDef.GetMethod);
+                //    yield return msil.Create(OpCodes.Stloc_0);
+                //    break;
+
+                default:
+                    throw new InvalidNotifyTargetException(method.FullName);
+            }
+
+            yield break;
+        }
+
+        protected static IEnumerable<Instruction> EndInstructionsToCallMethod(ILProcessor msil, MethodReference method, string parameterName = null)
+        {
+            var methodCallInstruction = msil.Create(OpCodes.Call, method);
+
+            var loadParameterNameInstruction = parameterName == null
+                ? msil.Create(OpCodes.Ldnull)
+                : msil.Create(OpCodes.Ldstr, parameterName);
+
+            switch (method.Parameters.Count)
+            {
+                case 0:
+                    yield return msil.Create(OpCodes.Ldarg_0);
+                    yield return methodCallInstruction;
+                    yield return msil.Create(OpCodes.Nop);
+                    break;
+
+                case 1:
+                    yield return msil.Create(OpCodes.Ldarg_0);
+                    yield return loadParameterNameInstruction;
+                    yield return methodCallInstruction;
+                    yield return msil.Create(OpCodes.Nop);
+                    break;
+
+                //This works, but allowing this simply create too many questions.  Eliminating these options in favor of simplicity.
+                //In the future I will 
+                //case 2:
+                //  yield return msil.Create(OpCodes.Ldarg_0);
+                //  yield return loadParameterNameInstruction;
+                //  yield return msil.Create(OpCodes.Ldarg_1);
+                //  yield return methodCallInstruction;
+                //  yield return msil.Create(OpCodes.Nop);
+                //	break;
+                
+                //case 3:
+				//	//Pass propertyname, oldValue and newValue
+                //  yield return msil.Create(OpCodes.Ldarg_0);
+                //  yield return loadParameterNameInstruction;
+                //  yield return msil.Create(OpCodes.Ldloc_0);
+                //  yield return msil.Create(OpCodes.Ldarg_1);
+                //  yield return methodCallInstruction;
+                //  yield return msil.Create(OpCodes.Nop);
+                //	break;
+
+                default:
+                    throw new InvalidNotifyTargetException(method.FullName);
+            }
+        }
         
         protected static void InsertAfter(ILProcessor ilProcessor, IEnumerable<Instruction> instructions, Instruction startPoint) {
 			var currentInstruction = startPoint;
