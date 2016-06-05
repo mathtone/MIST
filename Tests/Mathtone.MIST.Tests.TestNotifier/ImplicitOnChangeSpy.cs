@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 namespace Mathtone.MIST.TestNotifier
 {
     [Notifier(NotificationMode.ImplicitOnChange)]
-    public class ImplicitOnChange_NoArgsSpy
+    public class ImplicitOnChangeSpy
     {
+        [SuppressNotify]
         public int NumberOfNotifications { get; private set; }
 
         [NotifyTarget]
@@ -17,7 +18,9 @@ namespace Mathtone.MIST.TestNotifier
             NumberOfNotifications++;
         }
 
-        [Notify]
         public string StringValue { get; set; }
+
+        [Notify(NotifyMode.OnSet)]
+        public string ExplicitOnSetString { get; set; }
     }
 }

@@ -80,7 +80,7 @@ namespace Mathtone.MIST {
         /// <summary>
         /// Like Implicit, but only if the propertys backing variable changed value.
         /// </summary>
-        //ImplicitOnChange
+        ImplicitOnChange
 	}
 
     /// <summary>

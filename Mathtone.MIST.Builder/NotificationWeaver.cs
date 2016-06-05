@@ -85,7 +85,7 @@ namespace Mathtone.MIST {
 
 			var rtn = false;
 
-			//Search for a NotifyAttribute
+            //Search for a NotifyAttribute
 			var notifierAttr = typeDef.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == NotifierTypeName);
 
 			if (notifierAttr != null) {
@@ -109,7 +109,7 @@ namespace Mathtone.MIST {
                 foreach(var propDef in propertiesToNotifyForIn(typeDef, mode))
                 {
                     var propNames = GetNotifyPropertyNames(propDef);
-                    var notifyMode = NotifyModeOf(propDef);
+                    var notifyMode = NotifyModeOf(propDef, mode);
                     InsertNotificationsIntoProperty(propDef, notifyTarget, propNames, notifyMode);
                     rtn = true;
                 }
@@ -123,19 +123,15 @@ namespace Mathtone.MIST {
 			return rtn;
 		}
 
-        private NotifyMode NotifyModeOf(PropertyDefinition propDef)
+        private NotifyMode NotifyModeOf(PropertyDefinition propDef, NotificationMode mode)
         {
             var attr = propDef.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == NotifyTypeName);
-            if (attr == null || !attr.HasConstructorArguments)
-                return NotifyMode.OnSet;
+            if (attr == null 
+                || !attr.HasConstructorArguments
+                || attr.ConstructorArguments[0].Type.FullName != NotifyModeName)
+                return mode == NotificationMode.ImplicitOnChange ? NotifyMode.OnChange : NotifyMode.OnSet;
 
-            if (!attr.ConstructorArguments.Where(x => x.Type.FullName == NotifyModeName).Any())
-                return NotifyMode.OnSet;
-
-            return (NotifyMode)attr.ConstructorArguments
-                .Where(x => x.Type.FullName == NotifyModeName)
-                .Select(x => x.Value)
-                .Single();
+            return (NotifyMode)attr.ConstructorArguments[0].Value;
         }
 
         private IEnumerable<PropertyDefinition> propertiesToNotifyForIn(TypeDefinition typeDef, NotificationMode mode)
@@ -145,7 +141,9 @@ namespace Mathtone.MIST {
                 if (ContainsAttribute(propDef, SuppressNotifyTypeName))
                     continue;
 
-                if (ContainsAttribute(propDef, NotifyTypeName) || mode == NotificationMode.Implicit)
+                if (ContainsAttribute(propDef, NotifyTypeName)
+                    || mode == NotificationMode.Implicit
+                    || mode == NotificationMode.ImplicitOnChange)
                     yield return propDef;
             }
         }

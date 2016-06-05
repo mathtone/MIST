@@ -109,30 +109,28 @@ namespace Mathtone.MIST.Tests {
             Assert.AreEqual(1, notifier.NumberOfNotifications);
         }
 
-        //[TestMethod]
-        //public void Implicit_notify_on_change_No_args()
-        //{
-        //    var notifier = new TestNotifier.ImplicitOnChange_NoArgsSpy();
+        [TestMethod]
+        public void Implicit_notify_on_change()
+        {
+            var notifier = new TestNotifier.ImplicitOnChangeSpy();
 
-        //    notifier.StringValue = "ONE";
-        //    Assert.AreEqual(1, notifier.NumberOfNotifications);
+            notifier.StringValue = "ONE";
+            Assert.AreEqual(1, notifier.NumberOfNotifications);
 
-        //    notifier.StringValue = "ONE";
-        //    Assert.AreEqual(1, notifier.NumberOfNotifications);
-        //}
+            notifier.StringValue = "ONE";
+            Assert.AreEqual(1, notifier.NumberOfNotifications);
+        }
 
-        //[TestMethod]
-        //public void Implicit_notify_on_change_One_arg()
-        //{
-        //    var expectedProperties = new[] { "StringValue" };
+        [TestMethod]
+        public void Explicit_notify_on_set_when_class_is_ImplicitOnChange()
+        {
+            var notifier = new TestNotifier.ImplicitOnChangeSpy();
 
-        //    var notifier = new TestNotifier.ImplicitOnChange_OneArgSpy();
+            notifier.ExplicitOnSetString = "Value";
+            notifier.ExplicitOnSetString = "Value";
 
-        //    notifier.StringValue = "ONE";
-        //    Assert.AreEqual("ONE", notifier.StringValue, "Value should change to ONE");
+            Assert.AreEqual(2, notifier.NumberOfNotifications);
+        }
 
-        //    notifier.StringValue = "ONE";
-        //    CollectionAssert.AreEqual(expectedProperties, notifier.Notifications, $"Expected '{string.Join(",", expectedProperties)}' but got {string.Join(",", notifier.Notifications)}.");
-        //}
     }
 }
