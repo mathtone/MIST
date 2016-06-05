@@ -105,20 +105,12 @@ namespace Mathtone.MIST {
 				}
 
 				//Identify the name of the property/properties that will be passed to the notification method.
-				foreach (var propDef in typeDef.Properties) {
-					var propNames = GetNotifyPropertyNames(propDef);
-
-					if (!ContainsAttribute(propDef, SuppressNotifyTypeName)) {
-						//In implcit mode implement notification for all public properties
-						if (!propNames.Any() && mode == NotificationMode.Implicit && propDef.GetMethod.IsPublic) {
-							propNames = new[] { propDef.Name };
-						}
-						if (propNames != null) {
-							InsertNotificationsIntoProperty(propDef, notifyTarget, propNames);
-							rtn = true;
-						}
-					}
-				}
+                foreach(var propDef in propertiesToNotifyForIn(typeDef, mode))
+                {
+                    var propNames = GetNotifyPropertyNames(propDef);
+                    InsertNotificationsIntoProperty(propDef, notifyTarget, propNames);
+                    rtn = true;
+                }
 			}
 
 			//Recursively process any nested type definitions.
@@ -129,12 +121,24 @@ namespace Mathtone.MIST {
 			return rtn;
 		}
 
-		/// <summary>
-		/// Gets the notification target method, market with a <see cref="NotifyTarget"/> attribute.
-		/// </summary>
-		/// <param name="typeDef">The type definition.</param>
-		/// <returns>MethodReference.</returns>
-		protected MethodReference GetNotifyTarget(TypeDefinition typeDef) {
+        private IEnumerable<PropertyDefinition> propertiesToNotifyForIn(TypeDefinition typeDef, NotificationMode mode)
+        {
+            foreach (var propDef in typeDef.Properties)
+            {
+                if (ContainsAttribute(propDef, SuppressNotifyTypeName))
+                    continue;
+
+                if (ContainsAttribute(propDef, NotifyTypeName) || mode == NotificationMode.Implicit)
+                    yield return propDef;
+            }
+        }
+
+        /// <summary>
+        /// Gets the notification target method, market with a <see cref="NotifyTarget"/> attribute.
+        /// </summary>
+        /// <param name="typeDef">The type definition.</param>
+        /// <returns>MethodReference.</returns>
+        protected MethodReference GetNotifyTarget(TypeDefinition typeDef) {
 
 			//Check each method for a NotifyTargetAttribute
 			foreach (var methDef in typeDef.Methods) {
@@ -208,40 +212,43 @@ namespace Mathtone.MIST {
 		public static bool ContainsAttribute(PropertyDefinition definition, string attributeTypeName) =>
 			definition.CustomAttributes.Any(a => a.AttributeType.FullName == attributeTypeName);
 
-		/// <summary>
-		/// Gets the property names that should be passed to the notification target method when the property value is changed.
-		/// </summary>
-		/// <param name="propDef">The property definition.</param>
-		/// <returns>IEnumerable&lt;System.String&gt;.</returns>
-		IEnumerable<string> GetNotifyPropertyNames(PropertyDefinition propDef) {
-			//Check for the NotifyAttribute
-			var attr = propDef.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == NotifyTypeName);
-
-			if (attr != null) {
-				//Return property names supplied by the constructor, if none are specified return the property name itself.
-				if (attr.HasConstructorArguments) {
-					var args = attr.ConstructorArguments[0].Value as CustomAttributeArgument[];
-					if (args == null) {
-						//Argument is null
-						yield return null;
-					}
-					else if (args.Length == 0) {
-						//Apparently the user saw reason to pass an empty array.
-						yield return propDef.Name;
-					}
-					else {
-						//Multiple arguments have been passed.
-						foreach (var arg in args) {
-							yield return (string)arg.Value;
-						}
-					}
-				}
-				else {
-					//No fancy stuff, just return the property name.
-					yield return propDef.Name;
-				}
-			}
-		}
+        /// <summary>
+        /// Gets the property names that should be passed to the notification target method when the property value is changed.
+        /// </summary>
+        /// <param name="propDef">The property definition.</param>
+        /// <returns>IEnumerable&lt;System.String&gt;.</returns>
+        IEnumerable<string> GetNotifyPropertyNames(PropertyDefinition propDef)
+        {
+            var attr = propDef.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == NotifyTypeName);
+            if (attr == null || !attr.HasConstructorArguments)
+            {
+                //No fancy stuff, just return the property name.
+                yield return propDef.Name;
+            }
+            else
+            {
+                //Return property names supplied by the constructor, if none are specified return the property name itself.
+                var args = attr.ConstructorArguments[0].Value as CustomAttributeArgument[];
+                if (args == null)
+                {
+                    //Argument is null
+                    yield return null;
+                }
+                else if (args.Length == 0)
+                {
+                    //Apparently the user saw reason to pass an empty array.
+                    yield return propDef.Name;
+                }
+                else
+                {
+                    //Multiple arguments have been passed.
+                    foreach (var arg in args)
+                    {
+                        yield return (string)arg.Value;
+                    }
+                }
+            }
+        }
 
 		/// <summary>
 		/// Weaves notifiers into the property.  This is where the magic happens.
@@ -251,7 +258,7 @@ namespace Mathtone.MIST {
 		/// <param name="notifyPropertyNames">The notify property names.</param>
 		protected static void InsertNotificationsIntoProperty(PropertyDefinition propDef, MethodReference notifyTarget, IEnumerable<string> notifyPropertyNames) {
 
-			if (propDef.SetMethod == null)
+            if (propDef.SetMethod == null)
 				//This is a read-only property
 				return;
 			else if (propDef.SetMethod.Body == null) {
@@ -259,37 +266,37 @@ namespace Mathtone.MIST {
 				throw new InvalidNotifierException();
 			}
 
-			var methodBody = propDef.SetMethod.Body;
+            var methodBody = propDef.SetMethod.Body;
 
 			//Retrieve an IL writer
 			var msil = methodBody.GetILProcessor();
 
-			//Insert a Nop before the first instruction (like... at the beginning).
-			var begin = msil.Create(OpCodes.Nop);
-			msil.InsertBefore(methodBody.Instructions[0], begin);
+            //Insert a Nop before the first instruction (like... at the beginning).
+            var begin = msil.Create(OpCodes.Nop);
+            msil.InsertBefore(methodBody.Instructions[0], begin);
 
-			//Call the notification target method for 
-			foreach (var notifyPropertyName in notifyPropertyNames) {
+            //Call the notification target method for 
+            foreach (var notifyPropertyName in notifyPropertyNames) {
 
 				var beginInstructions = new Instruction[0];
 				var endInstructions = new Instruction[0];
 
-				//Load the value of the property name to be passed to the notify target onto the stack.
-				var propertyName = notifyPropertyName == null ?
+                //Load the value of the property name to be passed to the notify target onto the stack.
+                var propertyName = notifyPropertyName == null ?
 					msil.Create(OpCodes.Ldnull) :
 					msil.Create(OpCodes.Ldstr, notifyPropertyName);
 
 
-				//Emit a call to the notify target
+                //Emit a call to the notify target
 				var callNotifyTarget = msil.Create(OpCodes.Call, notifyTarget);
 				switch (notifyTarget.Parameters.Count) {
 					case 0:
-						endInstructions = new[] {
-							msil.Create(OpCodes.Ldarg_0),
-							msil.Create(OpCodes.Call, notifyTarget),
-							msil.Create(OpCodes.Nop)
-						};
-						break;
+                        endInstructions = new[] {
+                            msil.Create(OpCodes.Ldarg_0),
+                            msil.Create(OpCodes.Call, notifyTarget),
+                            msil.Create(OpCodes.Nop)
+                        };
+                        break;
 					case 1:
 						endInstructions = new[] {
 							msil.Create(OpCodes.Ldarg_0),
@@ -343,7 +350,7 @@ namespace Mathtone.MIST {
 				var returnPoints = methodBody.Instructions.Where(a => a.OpCode == OpCodes.Ret).ToArray();
 				foreach (var instruction in returnPoints) {
 
-					InsertBefore(msil, endInstructions, instruction);
+                    InsertBefore(msil, endInstructions, instruction);
 					var branches = methodBody.Instructions.Where(a => a.OpCode == OpCodes.Br_S && a.Operand == instruction).ToArray();
 					var branchTarget = endInstructions[0];
 
@@ -354,8 +361,8 @@ namespace Mathtone.MIST {
 
 			}
 		}
-
-		protected static void InsertAfter(ILProcessor ilProcessor, IEnumerable<Instruction> instructions, Instruction startPoint) {
+        
+        protected static void InsertAfter(ILProcessor ilProcessor, IEnumerable<Instruction> instructions, Instruction startPoint) {
 			var currentInstruction = startPoint;
 			foreach (var instruction in instructions) {
 				ilProcessor.InsertAfter(currentInstruction, instruction);
@@ -376,4 +383,4 @@ namespace Mathtone.MIST {
 			}
 		}
 	}
-}
+} 
