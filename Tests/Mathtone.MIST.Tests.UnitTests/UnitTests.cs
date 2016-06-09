@@ -37,7 +37,8 @@ namespace Mathtone.MIST.Tests {
 			var notifiers = new ITestNotifier[] {
 				new TestNotifier1(),
 				new TestNotifier2(),
-				new TestNotifier3()
+				new TestNotifier3(),
+
 			};
 
 			var expectedChanges = new[] { "Value1", "Value2", "Value3", "Value1", "Value2", "Value3" };
@@ -51,6 +52,23 @@ namespace Mathtone.MIST.Tests {
 				notifier.All = 4;
 				CollectionAssert.AreEqual(notifier.Changes,expectedChanges);
 			}
+		}
+
+
+		[TestMethod]
+		public void TestNotifierNotifierNotifier() {
+			var notifier = new TestNotifier4();
+			notifier.SomeNotifier = new TestNotifier1();
+			notifier.SomeNotifier = notifier.SomeNotifier;
+			Assert.AreEqual(1, notifier.ChangeCount);
+		}
+
+		[TestMethod]
+		public void TestEqualityOverride() {
+			var notifier = new TestNotifier5();
+			notifier.SomeValue = new TestValue { Value = "A" };
+			notifier.SomeValue = new TestValue { Value = "a" };
+			Assert.AreEqual(1, notifier.ChangeCount);
 		}
 
         [TestMethod]

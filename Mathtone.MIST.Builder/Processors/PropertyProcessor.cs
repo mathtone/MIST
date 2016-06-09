@@ -95,9 +95,12 @@ namespace Mathtone.MIST.Processors {
 
 
 			if (strategy.NotificationStyle == NotificationStyle.OnChange) {
+
 				var boolType = strategy.Property.Module.ImportReference(typeof(bool));
-				var equalityMethod = strategy.Property.PropertyType.Resolve().Methods.FirstOrDefault(a => a.Name == "Equals");
-				var equality = strategy.Property.Module.ImportReference(equalityMethod);
+				var propertyType = strategy.Property.PropertyType.Resolve();
+				var equalsMethod = typeof(object).GetMethods().FirstOrDefault(a => a.Name =="Equals" && !a.IsStatic);
+				var equality = strategy.Property.Module.ImportReference(equalsMethod);
+				
 				var v1 = new VariableDefinition(strategy.Property.PropertyType);
 				var v2 = new VariableDefinition(boolType);
 				var v3 = new VariableDefinition(boolType);
@@ -127,10 +130,10 @@ namespace Mathtone.MIST.Processors {
 					msil.Create(OpCodes.Nop)
 				};
 				
-				var callNotify = CallNotifyTargetInstructions(msil, strategy);
+				//var callNotify = CallNotifyTargetInstructions(msil, strategy);
 
 				instructions.AddRange(callSet);
-				instructions.AddRange(callNotify);
+				instructions.AddRange(CallNotifyTargetInstructions(msil, strategy));
 				instructions.Add(rtn);
 				;
 			}

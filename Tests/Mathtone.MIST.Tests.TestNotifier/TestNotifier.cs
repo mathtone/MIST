@@ -105,34 +105,31 @@ namespace Mathtone.MIST.Tests {
 		public int Supressed { get; set; }
 	}
 
-	[Notifier]
+
+	//Yodawg, I heard you liked notifiers, 
+	[Notifier(NotificationMode.Explicit)]
 	public class TestNotifier4 : TestNotifierBase {
 
 		[Notify(NotificationStyle.OnChange)]
-		public string SomeValue { get; set; }
+		public TestNotifier1 SomeNotifier { get; set; }
 
-		string someValue2;
+	}
 
-		[SuppressNotify]
-		public string SomeValue2 {
-			get { return someValue2; }
-			set {
-				var curValue = SomeValue2;
-				someValue2 = value;
-				bool isEqual = value == curValue;
-				if (!isEqual) {
-					DoSomething("BERRRRRG");
-				}
-			}
-		}
+	[Notifier(NotificationMode.Implicit, NotificationStyle.OnChange)]
+	public class TestNotifier5 : TestNotifierBase {
 
-		void DoSomething(string value) {
+		public TestValue SomeValue { get; set; }
 
+	}
+
+
+	public class TestValue {
+
+		public string Value { get; set; }
+
+		public override bool Equals(object obj) {
+			var value = obj as TestValue;
+			return value?.Value.ToLower() == this.Value.ToLower();
 		}
 	}
-	//[Notifier(NotificationMode.Implicit)]
-	//public class TestNotifier4 : NotifierBase { 
-	//	[Notify(null)]
-	//	public int RaiseNull { get; set; }
-	//}
 }

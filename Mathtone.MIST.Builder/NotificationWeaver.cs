@@ -45,13 +45,13 @@ namespace Mathtone.MIST {
 			var assemblyDef = null as AssemblyDefinition;
 			var readParameters = new ReaderParameters { ReadSymbols = debug, AssemblyResolver = resolver };
 			var writeParameters = new WriterParameters { WriteSymbols = debug };
-
+			var assemblyProcessor = new AssemblyProcessor(mdResolver);
+			
 			//Load the assembly.
 			using (var stream = File.OpenRead(assemblyPath)) {
 				assemblyDef = AssemblyDefinition.ReadAssembly(stream, readParameters);
 			}
-
-			var assemblyProcessor = new AssemblyProcessor(mdResolver);
+			
 			assemblyProcessor.Process(assemblyDef);
 
 			//If the assembly has been altered then rewrite it.
