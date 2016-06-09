@@ -31,7 +31,7 @@ namespace Mathtone.MIST.Tests {
 			}
 		}
 
-		[TestMethod]
+        [TestMethod]
 		public void TestNotificationImplementation() {
 
 			var changedProps = new List<string>();
@@ -60,5 +60,77 @@ namespace Mathtone.MIST.Tests {
 				Assert.IsTrue(changedProps.SequenceEqual(expectedChanges));
 			}
 		}
-	}
+
+        [TestMethod]
+        public void Explicit_notify_on_set_No_args()
+        {
+            var notifier = new TestNotifier.Explicit_NoArgsSpy();
+
+            notifier.StringValue = "Value";
+            notifier.StringValue = "Value";
+
+            Assert.AreEqual(2, notifier.NumberOfNotifications);
+        }
+
+        [TestMethod]
+        public void Explicit_notify_on_set_One_arg()
+        {
+            var expectedProperties = new[] { "StringValue", "StringValue" };
+
+            var notifier = new TestNotifier.Explicit_OneArgSpy();
+
+            notifier.StringValue = "ONE";
+            Assert.AreEqual("ONE", notifier.StringValue, "Value should change to ONE");
+
+            notifier.StringValue = "ONE";
+            CollectionAssert.AreEqual(expectedProperties, notifier.Notifications, $"Expected '{string.Join(",", expectedProperties)}' but got {string.Join(",", notifier.Notifications)}.");
+        }
+
+        [TestMethod]
+        public void Implicit_notify_on_set()
+        {
+            var notifier = new TestNotifier.ImplicitSpy();
+
+            notifier.StringValue = "Value";
+            notifier.StringValue = "Value";
+
+            Assert.AreEqual(2, notifier.NumberOfNotifications);
+        }
+
+        [TestMethod]
+        public void Explicit_notify_on_change()
+        {
+            var notifier = new TestNotifier.ExplicitOnChangeSpy();
+
+            notifier.StringValue = "ONE";
+            Assert.AreEqual(1, notifier.NumberOfNotifications);
+
+            notifier.StringValue = "ONE";
+            Assert.AreEqual(1, notifier.NumberOfNotifications);
+        }
+
+        [TestMethod]
+        public void Implicit_notify_on_change()
+        {
+            var notifier = new TestNotifier.ImplicitOnChangeSpy();
+
+            notifier.StringValue = "ONE";
+            Assert.AreEqual(1, notifier.NumberOfNotifications);
+
+            notifier.StringValue = "ONE";
+            Assert.AreEqual(1, notifier.NumberOfNotifications);
+        }
+
+        [TestMethod]
+        public void Explicit_notify_on_set_when_class_is_ImplicitOnChange()
+        {
+            var notifier = new TestNotifier.ImplicitOnChangeSpy();
+
+            notifier.ExplicitOnSetString = "Value";
+            notifier.ExplicitOnSetString = "Value";
+
+            Assert.AreEqual(2, notifier.NumberOfNotifications);
+        }
+
+    }
 }
