@@ -1,26 +1,19 @@
-﻿using System;
+﻿using Mathtone.MIST.Tests;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mathtone.MIST.TestNotifier
-{
-    [Notifier(NotificationMode.ImplicitOnChange)]
-    public class ImplicitOnChangeSpy
-    {
-        [SuppressNotify]
-        public int NumberOfNotifications { get; private set; }
+namespace Mathtone.MIST.TestNotifier {
 
-        [NotifyTarget]
-        protected void NotifyTargetMethod()
-        {
-            NumberOfNotifications++;
-        }
+	[Notifier(NotificationMode.Implicit, NotificationStyle.OnChange)]
+	public class ImplicitOnChangeSpy : TestNotifierBase
+	{
 
-        public string StringValue { get; set; }
+		public string StringValue { get; set; }
 
-        [Notify(NotifyMode.OnSet)]
-        public string ExplicitOnSetString { get; set; }
-    }
+		[Notify(NotificationStyle.OnSet)]
+		public string ExplicitOnSetString { get; set; }
+	}
 }

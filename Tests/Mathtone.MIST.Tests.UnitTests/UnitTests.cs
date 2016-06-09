@@ -34,7 +34,6 @@ namespace Mathtone.MIST.Tests {
         [TestMethod]
 		public void TestNotificationImplementation() {
 
-			var changedProps = new List<string>();
 			var notifiers = new ITestNotifier[] {
 				new TestNotifier1(),
 				new TestNotifier2(),
@@ -43,21 +42,14 @@ namespace Mathtone.MIST.Tests {
 
 			var expectedChanges = new[] { "Value1", "Value2", "Value3", "Value1", "Value2", "Value3" };
 
-			PropertyChangedEventHandler handler = (a, b) => {
-				changedProps.Add(b.PropertyName);
-			};
-
 			foreach (var notifier in notifiers) {
 				WriteLine($"Testing notifier: {notifier.GetType().Name}");
-				changedProps.Clear();
-				notifier.PropertyChanged += handler;
 				notifier.Value1 = "ONE";
 				notifier.Value2 = 1;
 				notifier.Value3 = 2;
 				notifier.Supressed = 3;
 				notifier.All = 4;
-				notifier.PropertyChanged -= handler;
-				Assert.IsTrue(changedProps.SequenceEqual(expectedChanges));
+				CollectionAssert.AreEqual(notifier.Changes,expectedChanges);
 			}
 		}
 
@@ -69,7 +61,7 @@ namespace Mathtone.MIST.Tests {
             notifier.StringValue = "Value";
             notifier.StringValue = "Value";
 
-            Assert.AreEqual(2, notifier.NumberOfNotifications);
+            Assert.AreEqual(2, notifier.ChangeCount);
         }
 
         [TestMethod]
@@ -83,7 +75,7 @@ namespace Mathtone.MIST.Tests {
             Assert.AreEqual("ONE", notifier.StringValue, "Value should change to ONE");
 
             notifier.StringValue = "ONE";
-            CollectionAssert.AreEqual(expectedProperties, notifier.Notifications, $"Expected '{string.Join(",", expectedProperties)}' but got {string.Join(",", notifier.Notifications)}.");
+            CollectionAssert.AreEqual(expectedProperties, notifier.Changes, $"Expected '{string.Join(",", expectedProperties)}' but got {string.Join(",", notifier.Changes)}.");
         }
 
         [TestMethod]
@@ -94,7 +86,7 @@ namespace Mathtone.MIST.Tests {
             notifier.StringValue = "Value";
             notifier.StringValue = "Value";
 
-            Assert.AreEqual(2, notifier.NumberOfNotifications);
+            Assert.AreEqual(2, notifier.ChangeCount);
         }
 
         [TestMethod]
@@ -103,10 +95,10 @@ namespace Mathtone.MIST.Tests {
             var notifier = new TestNotifier.ExplicitOnChangeSpy();
 
             notifier.StringValue = "ONE";
-            Assert.AreEqual(1, notifier.NumberOfNotifications);
+            Assert.AreEqual(1, notifier.ChangeCount);
 
             notifier.StringValue = "ONE";
-            Assert.AreEqual(1, notifier.NumberOfNotifications);
+            Assert.AreEqual(1, notifier.ChangeCount);
         }
 
         [TestMethod]
@@ -115,10 +107,10 @@ namespace Mathtone.MIST.Tests {
             var notifier = new TestNotifier.ImplicitOnChangeSpy();
 
             notifier.StringValue = "ONE";
-            Assert.AreEqual(1, notifier.NumberOfNotifications);
+            Assert.AreEqual(1, notifier.ChangeCount);
 
             notifier.StringValue = "ONE";
-            Assert.AreEqual(1, notifier.NumberOfNotifications);
+            Assert.AreEqual(1, notifier.ChangeCount);
         }
 
         [TestMethod]
@@ -129,8 +121,7 @@ namespace Mathtone.MIST.Tests {
             notifier.ExplicitOnSetString = "Value";
             notifier.ExplicitOnSetString = "Value";
 
-            Assert.AreEqual(2, notifier.NumberOfNotifications);
+            Assert.AreEqual(2, notifier.ChangeCount);
         }
-
     }
 }

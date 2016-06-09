@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mathtone.MIST.Tests;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,18 +8,9 @@ using System.Threading.Tasks;
 namespace Mathtone.MIST.TestNotifier
 {
     [Notifier]
-    public class ExplicitOnChangeSpy
+    public class ExplicitOnChangeSpy : TestNotifierBase
     {
-        [SuppressNotify]
-        public int NumberOfNotifications { get; private set; }
-
-        [NotifyTarget]
-        protected void NotifyTargetMethod()
-        {
-            NumberOfNotifications++;
-        }
-
-        [Notify(NotifyMode.OnChange)]
+		[Notify(NotificationStyle.OnChange)]
         public string StringValue { get; set; }
     }
 }
