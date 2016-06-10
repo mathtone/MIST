@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Mathtone.MIST;
 using Mono.Cecil.Cil;
+using System.Reflection;
 
 namespace Mathtone.MIST.Processors {
 
@@ -14,7 +15,7 @@ namespace Mathtone.MIST.Processors {
 		NotificationMode defaultMode;
 		NotificationStyle defaultStyle;
 		MethodReference notifyTarget;
-
+		//static MethodInfo equalsMethod = typeof(object).GetMethods().FirstOrDefault(a => a.Name == "Equals" && !a.IsStatic);
 		public bool ContainsChanges { get; protected set; }
 
 		public PropertyProcessor(MethodReference target, NotificationMode mode, NotificationStyle style) {
@@ -57,9 +58,11 @@ namespace Mathtone.MIST.Processors {
 
 			var method = strategy.Property.SetMethod;
 			var msil = method.Body.GetILProcessor();
+			var begin = method.Body.Instructions.First();
 			var end = method.Body.Instructions.Last();
 
 			if (strategy.NotificationStyle == NotificationStyle.OnSet) {
+				InsertBefore(msil, msil.Create(OpCodes.Nop), begin);
 				InsertBefore(msil, CallNotifyTargetInstructions(msil, strategy), end);
 			}
 			else {
@@ -92,15 +95,23 @@ namespace Mathtone.MIST.Processors {
 			var rtn = msil.Create(OpCodes.Ret);
 			newMethod.DeclaringType = setMethod.DeclaringType;
 			newMethod.Parameters.Add(new ParameterDefinition(setMethod.Parameters[0].ParameterType));
-
-
+			
 			if (strategy.NotificationStyle == NotificationStyle.OnChange) {
 
 				var boolType = strategy.Property.Module.ImportReference(typeof(bool));
 				var propertyType = strategy.Property.PropertyType.Resolve();
-				var equalsMethod = typeof(object).GetMethods().FirstOrDefault(a => a.Name =="Equals" && !a.IsStatic);
-				var equality = strategy.Property.Module.ImportReference(equalsMethod);
 				
+				//find equals method
+				var equalsMethod = SeekMethod(
+					propertyType,
+					a =>
+						a.Name == "Equals" &&
+						a.Parameters.Count == 1
+				);
+				var equality = strategy.Property.Module.ImportReference(equalsMethod);
+
+				var equalityReference = equalsMethod.Resolve();
+
 				var v1 = new VariableDefinition(strategy.Property.PropertyType);
 				var v2 = new VariableDefinition(boolType);
 				var v3 = new VariableDefinition(boolType);
@@ -109,39 +120,63 @@ namespace Mathtone.MIST.Processors {
 				newMethod.Body.Variables.Add(v2);
 				newMethod.Body.Variables.Add(v3);
 
-				var callSet = new[] {
-					msil.Create(OpCodes.Nop),
-					msil.Create(OpCodes.Ldarg_0),
-					msil.Create(OpCodes.Call,strategy.Property.GetMethod),
-					msil.Create(OpCodes.Stloc,v1),
-					msil.Create(OpCodes.Ldarg_0),
-					msil.Create(OpCodes.Ldarg_1),
-					msil.Create(OpCodes.Call, setMethod),
-					msil.Create(OpCodes.Ldarg_1),
-					msil.Create(OpCodes.Ldloc,v1),
-					msil.Create(OpCodes.Callvirt,equality),
-					msil.Create(OpCodes.Stloc,v2),
-					msil.Create(OpCodes.Ldloc,v2),
-					msil.Create(OpCodes.Ldc_I4_0),
-					msil.Create(OpCodes.Ceq),
-					msil.Create(OpCodes.Stloc,v3),
-					msil.Create(OpCodes.Ldloc,v3),
-					msil.Create(OpCodes.Brfalse_S,rtn),
-					msil.Create(OpCodes.Nop)
-				};
-				
-				//var callNotify = CallNotifyTargetInstructions(msil, strategy);
+				if (!propertyType.IsPrimitive) {
+					instructions.AddRange(
+						new[] {
+							msil.Create(OpCodes.Nop),
+							msil.Create(OpCodes.Ldarg_0),
+							msil.Create(OpCodes.Call,strategy.Property.GetMethod),
+							msil.Create(OpCodes.Stloc_0),
+							msil.Create(OpCodes.Ldarg_0),
+							msil.Create(OpCodes.Ldarg_1),
+							msil.Create(OpCodes.Call, setMethod),
+							msil.Create(OpCodes.Nop),
+							msil.Create(OpCodes.Ldloc_0),
+							msil.Create(OpCodes.Ldarg_1),
+							msil.Create(equalityReference.IsVirtual? OpCodes.Callvirt:OpCodes.Call,equality),
+							msil.Create(OpCodes.Stloc_1),
+							msil.Create(OpCodes.Ldloc_1),
+							msil.Create(OpCodes.Brfalse_S,rtn),
+							msil.Create(OpCodes.Nop)
+						}
+					);
+				}
+				else {
+					instructions.AddRange(
+						new[] {
+							msil.Create(OpCodes.Nop),
+							msil.Create(OpCodes.Ldarg_0),
+							msil.Create(OpCodes.Call,strategy.Property.GetMethod),
+							msil.Create(OpCodes.Stloc_0),
+							msil.Create(OpCodes.Ldarg_0),
+							msil.Create(OpCodes.Ldarg_1),
+							msil.Create(OpCodes.Call, setMethod),
+							msil.Create(OpCodes.Nop),
+							msil.Create(OpCodes.Ldloc_0),
+							msil.Create(OpCodes.Ldarg_1),
+							msil.Create(OpCodes.Call,equality),
+							//msil.Create(OpCodes.Ceq),
 
-				instructions.AddRange(callSet);
+							msil.Create(OpCodes.Ldc_I4_0),
+							msil.Create(OpCodes.Ceq),
+							msil.Create(OpCodes.Stloc_1),
+							msil.Create(OpCodes.Ldloc_1),
+							msil.Create(OpCodes.Brfalse_S,rtn),
+							msil.Create(OpCodes.Nop)
+						}
+					);
+				};
+
 				instructions.AddRange(CallNotifyTargetInstructions(msil, strategy));
+				instructions.Add(msil.Create(OpCodes.Nop));
 				instructions.Add(rtn);
-				;
+
 			}
 			else {
 				instructions.AddRange(new[] {
 					msil.Create(OpCodes.Ldarg_0),
 					msil.Create(OpCodes.Ldarg_1),
-					msil.Create(OpCodes.Call, setMethod)
+					msil.Create(OpCodes.Call, setMethod),
 				});
 				instructions.AddRange(CallNotifyTargetInstructions(msil, strategy));
 				instructions.Add(rtn);
@@ -150,24 +185,43 @@ namespace Mathtone.MIST.Processors {
 			foreach (var instruction in instructions) {
 				newMethod.Body.Instructions.Add(instruction);
 			}
-			setMethod.Name = $"{setMethod.Name}`impl"; // "misted`" + setMethod.Name;
+			setMethod.Name = $"{setMethod.Name}`mist"; // "misted`" + setMethod.Name;
 			strategy.Property.SetMethod = newMethod;
 			newMethod.DeclaringType.Methods.Add(newMethod);
 		}
 
-		static void InsertAfter(ILProcessor ilProcessor, IEnumerable<Instruction> instructions, Instruction startPoint) {
-			var currentInstruction = startPoint;
+		static IEnumerable<MethodDefinition> GetMethods(TypeDefinition type, Func<MethodDefinition, bool> evaluator) =>
+			type.Methods.Where(a => evaluator(a));
+
+		static MethodDefinition SeekMethod(TypeDefinition type, Func<MethodDefinition, bool> evaluator) {
+
+			var rtn = GetMethods(type, evaluator).FirstOrDefault();
+			if (rtn == null && type.BaseType != null) {
+				rtn = SeekMethod(type.BaseType.Resolve(),evaluator);
+			}
+			return rtn;
+			//MethodDefinition rtn;
+
+		}
+
+		static void InsertAfter(ILProcessor ilProcessor, IEnumerable<Instruction> instructions, Instruction insertionPoint) {
+			var currentInstruction = insertionPoint;
 			foreach (var instruction in instructions) {
 				ilProcessor.InsertAfter(currentInstruction, instruction);
 				currentInstruction = instruction;
 			}
 		}
+		static void InsertAfter(ILProcessor ilProcessor, Instruction instruction, Instruction insertionPoint) =>
+			InsertAfter(ilProcessor, new[] { instruction }, insertionPoint);
 
-		static void InsertBefore(ILProcessor ilProcessor, IEnumerable<Instruction> instructions, Instruction startPoint) {
+		static void InsertBefore(ILProcessor ilProcessor, Instruction instruction, Instruction insertionPoint) =>
+			InsertBefore(ilProcessor, new[] { instruction }, insertionPoint);
+
+		static void InsertBefore(ILProcessor ilProcessor, IEnumerable<Instruction> instructions, Instruction insertionPoint) {
 			var currentInstruction = null as Instruction;
 			foreach (var instruction in instructions) {
 				if (currentInstruction == null) {
-					ilProcessor.InsertBefore(startPoint, instruction);
+					ilProcessor.InsertBefore(insertionPoint, instruction);
 				}
 				else {
 					ilProcessor.InsertAfter(currentInstruction, instruction);

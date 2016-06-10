@@ -5,12 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mathtone.MIST.TestNotifier
-{
-    [Notifier]
-    public class Explicit_NoArgsSpy : TestNotifierBase
+namespace Mathtone.MIST.TestNotifier.Cases {
+    [Notifier(NotificationMode.Implicit)]
+    public class ImplicitSpy : TestNotifierBase
     {
-        [Notify]
         public string StringValue { get; set; }
     }
 }

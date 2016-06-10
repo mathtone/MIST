@@ -5,11 +5,11 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{EE44F332-2282-4E09-BFFD-F2A9CCE8D916}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Mathtone.MIST.Tests.NugetScriptTest</RootNamespace>
     <AssemblyName>Mathtone.MIST.Tests.NugetScriptTest</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -62,9 +62,12 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Mathtone.MIST.Tests.NugetScriptTest.TestClass</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mathtone.MIST, Version=1.0.5992.39007, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mathtone.MIST.1.2.1\lib\net46\Mathtone.MIST.dll</HintPath>
+    <Reference Include="Mathtone.MIST, Version=2.0.6004.34575, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Mathtone.MIST.2.0.0\lib\net46\Mathtone.MIST.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -84,7 +87,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <UsingTask TaskName="Mathtone.MIST.NotificationWeaverBuildTask" AssemblyFile="..\..\packages\Mathtone.MIST.1.2.1\tools\net46\Mathtone.MIST.Builder.dll" />
+  <UsingTask TaskName="Mathtone.MIST.NotificationWeaverBuildTask" AssemblyFile="..\..\packages\Mathtone.MIST.2.0.0\tools\net46\Mathtone.MIST.Builder.dll" />
   <Target Name="AfterBuild">
     <NotificationWeaverBuildTask TargetPath="$(TargetPath)" DebugMode="True" />
   </Target>

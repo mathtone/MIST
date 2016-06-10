@@ -5,15 +5,30 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Mathtone.MIST.Tests.NugetScriptTest {
+
 	[Notifier]
 	public class TestClass {
 
+		[Notify(NotificationStyle.OnChange)]
+		public string TestString { get; set; }
+
 		[Notify]
-		public string Test { get; set; }
+		public int TestInt { get; set; }
 
 		[NotifyTarget]
 		void Changed(string propertyName) {
 			;
+		}
+
+		static void Main(string[] args) {
+			try {
+				var testClass = new TestClass();
+				testClass.TestString = "1";
+				testClass.TestInt = 1;
+			}
+			catch(Exception ex) {
+				;
+			}
 		}
 	}
 }

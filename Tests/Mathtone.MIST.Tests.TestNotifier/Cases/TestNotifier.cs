@@ -2,34 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace Mathtone.MIST.Tests {
-
-	public interface IChangeTracker {
-		List<string> Changes { get; }
-	}
-
-	public interface IChangeCounter {
-		int ChangeCount { get; }
-	}
-
-	public interface ITestNotifier : IChangeTracker, IChangeCounter {
-		string Value1 { get; set; }
-		int Value2 { get; set; }
-		int Value3 { get; set; }
-		int All { get; set; }
-		int Supressed { get; set; }
-	}
-
-
-	public class TestNotifierBase : IChangeTracker, IChangeCounter {
-		public int ChangeCount => Changes.Count;
-		public List<string> Changes { get; } = new List<string>();
-
-		[NotifyTarget]
-		protected void OnPropertyChanged(string propertyName) {
-			Changes.Add(propertyName);
-		}
-	}
+namespace Mathtone.MIST.TestNotifier.Cases {
 
 	[Notifier]
 	public class TestNotifier1 : TestNotifierBase, ITestNotifier {
@@ -122,6 +95,15 @@ namespace Mathtone.MIST.Tests {
 
 	}
 
+	[Notifier]
+	public class ValueTypeTestNotifier : TestNotifierBase {
+
+		[Notify(NotificationStyle.OnSet)]
+		public string TestString { get; set; }
+
+		[Notify(NotificationStyle.OnChange)]
+		public int TestInt { get; set; }
+	}
 
 	public class TestValue {
 

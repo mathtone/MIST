@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mathtone.MIST.TestNotifier {
+namespace Mathtone.MIST.TestNotifier.Cases {
 
 	[Notifier(NotificationMode.Implicit, NotificationStyle.OnChange)]
 	public class ImplicitOnChangeSpy : TestNotifierBase

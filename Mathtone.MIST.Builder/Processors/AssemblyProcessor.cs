@@ -17,7 +17,6 @@ namespace Mathtone.MIST.Processors {
 		}
 
 		public void Process(AssemblyDefinition definition) {
-			//Search for types and weave notifiers into them if necessary.
 			var moduleProcessor = new ModuleProcessor(metadataResolver);
 			foreach (var moduleDef in definition.Modules) {
 				moduleProcessor.Process(moduleDef);

@@ -1,4 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Mathtone.MIST.TestNotifier;
+using Mathtone.MIST.TestNotifier.Cases;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,6 +13,10 @@ using static System.Console;
 namespace Mathtone.MIST.Tests {
 	[TestClass]
 	public class UnitTests {
+
+		DefaultAssemblyResolver assemblyResolver;
+		MetadataResolver metadataResolver;
+		TypeDefinition[] standardModuleTypes;
 
 		//****************
 		//NOTE: Clean and rebuild the solution when these tests are run otherwise notifications will be implemented twice and the tests will fail.
@@ -29,8 +36,80 @@ namespace Mathtone.MIST.Tests {
 				weaver.InsertNotifications(true);
 				initialized = true;
 			}
+
+			this.assemblyResolver = new DefaultAssemblyResolver();
+			this.assemblyResolver.AddSearchDirectory(ApplicationPath);
+			this.metadataResolver = new MetadataResolver(assemblyResolver);
+
+
+		}
+		void InitializeStandardAssembly() {
+			var assemblyDef = null as AssemblyDefinition;
+			var assembly = typeof(TestNotifier.Patterns.OnChangeStandard).Module.Assembly;
+
+			//Load the assembly.
+			using (var stream = File.OpenRead(assembly.Location)) {
+				assemblyDef = AssemblyDefinition.ReadAssembly(stream);
+			}
+
+			standardModuleTypes = assemblyDef.Modules.SelectMany(a => a.Types).ToArray();
+		}
+		[TestMethod]
+		public void OnSet_Mist_Vs_Standard() {
+			if (standardModuleTypes == null) {
+				InitializeStandardAssembly();
+			}
+			var std = standardModuleTypes.Single(a => a.FullName == typeof(TestNotifier.Patterns.OnSetStandard).FullName);
+			var mist = standardModuleTypes.Single(a => a.FullName == typeof(TestNotifier.Patterns.OnSetImplementation).FullName);
+			var matches = std.Properties.Join(
+				mist.Properties, s => s.Name, i => i.Name, (s, i) => new {
+					Standard = s,
+					Mist = i
+				});
+
+			foreach (var pair in matches) {
+
+				var unmisted = pair.Standard.SetMethod.Body.Instructions.ToArray();
+				var misted = pair.Mist.SetMethod.Body.Instructions.ToArray();
+
+				Assert.AreEqual(unmisted.Length, misted.Length);
+
+				CollectionAssert.AreEqual(
+					unmisted.Select(a => a.OpCode).ToArray(),
+					misted.Select(a => a.OpCode).ToArray()
+				);
+			}
 		}
 
+		[TestMethod]
+		public void OnChange_Mist_Vs_Standard() {
+			if (standardModuleTypes == null) {
+				InitializeStandardAssembly();
+			}
+			var std = standardModuleTypes.Single(a => a.FullName == typeof(TestNotifier.Patterns.OnChangeStandard).FullName);
+			var mist = standardModuleTypes.Single(a => a.FullName == typeof(TestNotifier.Patterns.OnChangeImplementation).FullName);
+			var matches = std.Properties.Join(
+				mist.Properties, s => s.Name, i => i.Name, (s, i) => new {
+					Standard = s,
+					Mist = i
+				}
+			);
+
+			foreach (var pair in matches) {
+
+				var unmisted = pair.Standard.SetMethod.Body.Instructions.ToArray();
+				var misted = pair.Mist.SetMethod.Body.Instructions.ToArray();
+
+				Assert.AreEqual(unmisted.Length, misted.Length);
+
+				CollectionAssert.AreEqual(
+					unmisted.Select(a => a.OpCode).ToArray(),
+					misted.Select(a => a.OpCode).ToArray()
+				);
+			}
+		}
+
+		
         [TestMethod]
 		public void TestNotificationImplementation() {
 
@@ -54,6 +133,16 @@ namespace Mathtone.MIST.Tests {
 			}
 		}
 
+		[TestMethod]
+		public void TestValueTypeTestNotifier() {
+			var not = new ValueTypeTestNotifier();
+			not.TestString = "1";
+			Assert.AreEqual(1, not.ChangeCount);
+
+			not.TestInt = 1;
+			Assert.AreEqual(2, not.ChangeCount);
+
+		}
 
 		[TestMethod]
 		public void TestNotifierNotifierNotifier() {
@@ -74,7 +163,7 @@ namespace Mathtone.MIST.Tests {
         [TestMethod]
         public void Explicit_notify_on_set_No_args()
         {
-            var notifier = new TestNotifier.Explicit_NoArgsSpy();
+            var notifier = new Explicit_NoArgsSpy();
 
             notifier.StringValue = "Value";
             notifier.StringValue = "Value";
@@ -87,7 +176,7 @@ namespace Mathtone.MIST.Tests {
         {
             var expectedProperties = new[] { "StringValue", "StringValue" };
 
-            var notifier = new TestNotifier.Explicit_OneArgSpy();
+            var notifier = new Explicit_OneArgSpy();
 
             notifier.StringValue = "ONE";
             Assert.AreEqual("ONE", notifier.StringValue, "Value should change to ONE");
@@ -99,7 +188,7 @@ namespace Mathtone.MIST.Tests {
         [TestMethod]
         public void Implicit_notify_on_set()
         {
-            var notifier = new TestNotifier.ImplicitSpy();
+            var notifier = new ImplicitSpy();
 
             notifier.StringValue = "Value";
             notifier.StringValue = "Value";
@@ -110,7 +199,7 @@ namespace Mathtone.MIST.Tests {
         [TestMethod]
         public void Explicit_notify_on_change()
         {
-            var notifier = new TestNotifier.ExplicitOnChangeSpy();
+            var notifier = new ExplicitOnChangeSpy();
 
             notifier.StringValue = "ONE";
             Assert.AreEqual(1, notifier.ChangeCount);
@@ -122,7 +211,7 @@ namespace Mathtone.MIST.Tests {
         [TestMethod]
         public void Implicit_notify_on_change()
         {
-            var notifier = new TestNotifier.ImplicitOnChangeSpy();
+            var notifier = new ImplicitOnChangeSpy();
 
             notifier.StringValue = "ONE";
             Assert.AreEqual(1, notifier.ChangeCount);
@@ -134,12 +223,13 @@ namespace Mathtone.MIST.Tests {
         [TestMethod]
         public void Explicit_notify_on_set_when_class_is_ImplicitOnChange()
         {
-            var notifier = new TestNotifier.ImplicitOnChangeSpy();
+            var notifier = new ImplicitOnChangeSpy();
 
             notifier.ExplicitOnSetString = "Value";
             notifier.ExplicitOnSetString = "Value";
 
             Assert.AreEqual(2, notifier.ChangeCount);
         }
-    }
+		
+	}
 }

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Mathtone.MIST.Processors {
+
 	public class ModuleProcessor : IDefinitionProcessor<ModuleDefinition> {
 		MetadataResolver metadataResolver;
 		public bool ContainsChanges { get; protected set; }

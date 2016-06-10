@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mathtone.MIST.TestNotifier
-{
-    [Notifier(NotificationMode.Implicit)]
-    public class ImplicitSpy : TestNotifierBase
+namespace Mathtone.MIST.TestNotifier.Cases {
+    [Notifier]
+    public class ExplicitOnChangeSpy : TestNotifierBase
     {
+		[Notify(NotificationStyle.OnChange)]
         public string StringValue { get; set; }
     }
 }

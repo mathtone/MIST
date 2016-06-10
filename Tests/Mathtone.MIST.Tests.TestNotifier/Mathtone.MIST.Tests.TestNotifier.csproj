@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Mathtone.MIST.TestNotifier</RootNamespace>
     <AssemblyName>Mathtone.MIST.TestNotifier</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -73,15 +73,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExplicitOnChangeSpy.cs" />
-    <Compile Include="ImplicitOnChangeSpy.cs" />
-    <Compile Include="ImplicitSpy.cs" />
-    <Compile Include="Explicit_OneArgSpy.cs" />
-    <Compile Include="TestNotifier.cs" />
+    <Compile Include="Cases\ExplicitOnChangeSpy.cs" />
+    <Compile Include="Cases\ImplicitOnChangeSpy.cs" />
+    <Compile Include="Cases\ImplicitSpy.cs" />
+    <Compile Include="Cases\Explicit_OneArgSpy.cs" />
+    <Compile Include="ITestNotifier.cs" />
+    <Compile Include="Cases\TestNotifier.cs" />
+    <Compile Include="Patterns\ImplementationStandard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Explicit_NoArgsSpy.cs" />
+    <Compile Include="Cases\Explicit_NoArgsSpy.cs" />
+    <Compile Include="TestNotifierBase.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\cecil-master\Mono.Cecil.csproj">
+      <Project>{d68133bd-1e63-496e-9ede-4fbdbf77b486}</Project>
+      <Name>Mono.Cecil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\cecil-master\symbols\pdb\Mono.Cecil.Pdb.csproj">
+      <Project>{63e6915c-7ea4-4d76-ab28-0d7191eea626}</Project>
+      <Name>Mono.Cecil.Pdb</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Mathtone.MIST\Mathtone.MIST.csproj">
       <Project>{a0625d95-3d4b-449d-8b13-a806c5f17ca7}</Project>
       <Name>Mathtone.MIST</Name>
@@ -91,6 +102,7 @@
       <Name>Mathtone.MIST.Tests.NotifierBase</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!--<UsingTask TaskName="Mathtone.MIST.NotificationWeaverBuildTask"
 			 AssemblyFile="$(ProjectDir)..\Resources\Mathtone.MIST.Builder.dll"
