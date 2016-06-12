@@ -122,7 +122,7 @@ namespace Mathtone.MIST.Tests {
         #region Support for all types of parameter types
 
         [TestMethod]
-		public void ValueTypes_notify_OnSet() {
+		public void OnSet_for_ValueTypes() {
 			var notifier = new ExplicitValueTypeNotifier();
             notifier.OnSetInt = 43;
             notifier.OnSetInt= 43;
@@ -130,11 +130,11 @@ namespace Mathtone.MIST.Tests {
             notifier.OnSetBool = true;
             notifier.OnSetDouble = 3.14159261;
             notifier.OnSetDouble = 3.14159261;
-            Assert.AreEqual(7, notifier.ChangeCount);
+            Assert.AreEqual(6, notifier.ChangeCount);
 		}
 
         [TestMethod]
-        public void ValueTypes_notify_OnChange()
+        public void OnChange_for_ValueTypes()
         {
             var notifier = new ExplicitValueTypeNotifier();
             notifier.OnChangeInt = 43;
@@ -147,7 +147,7 @@ namespace Mathtone.MIST.Tests {
         }
 
         [TestMethod]
-		public void ReferenceTypes_notify_OnChange() {
+		public void OnChange_for_ReferenceTypes() {
 			var notifier = new ExplicitRefTypeNotifier();
 			notifier.OnChangeObject = new object();
 			notifier.OnChangeObject = notifier.OnChangeObject;
@@ -155,7 +155,7 @@ namespace Mathtone.MIST.Tests {
 		}
 
         [TestMethod]
-        public void ValueTypes_notify_OnChange_considers_Equals_override()
+        public void OnChange_for_ValueTypes_that_overrides_Equals()
         {
             var notifier = new ImplicitOnChangeNotifier();
             notifier.StructWithEquals = new StructOverrideEquals { Value = 73 };
@@ -164,7 +164,7 @@ namespace Mathtone.MIST.Tests {
         }
 
         [TestMethod]
-        public void ReferenceTypes_notify_OnChange_considers_Equals_override()
+        public void OnChange_for_ReferenceTypes_that_overrides_Equals()
         {
             var notifier = new ImplicitOnChangeNotifier();
             notifier.ObjectWithEquals = new RefObjectOverrideEquals { Value = "A" };
@@ -173,7 +173,7 @@ namespace Mathtone.MIST.Tests {
         }
 
         [TestMethod]
-        public void Nullable_ValueTypes_notify_OnSet()
+        public void OnSet_for_Nullable_ValueTypes()
         {
             var notifier = new ExplicitValueTypeNotifier();
             notifier.OnSetNullableInt = 43;
@@ -184,7 +184,7 @@ namespace Mathtone.MIST.Tests {
         }
 
         [TestMethod]
-        public void Nullable_ValueTypes_notify_OnChange()
+        public void OnChange_for_Nullable_ValueTypes()
         {
             var notifier = new ExplicitValueTypeNotifier();
             notifier.OnChangeNullableInt = 43;
@@ -195,6 +195,101 @@ namespace Mathtone.MIST.Tests {
         }
 
         #endregion Support for all types of parameter types
+
+        #region Class inheritance
+
+        [TestMethod]
+        public void OnSet_for_inherited_properties()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnSetBaseInt = 43;
+            notifier.OnSetBaseInt = 43;
+            Assert.AreEqual(2, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void OnChange_for_inherited_properties()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnChangeBaseInt = 43;
+            notifier.OnChangeBaseInt = 43;
+            Assert.AreEqual(1, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void OnSet_for_Virtual_ValueTypes()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnSetVirtualInt = 43;
+            notifier.OnSetVirtualInt = 43;
+            Assert.AreEqual(4, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void OnChange_for_Virtual_ValueTypes()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnChangeVirtualInt = 43;
+            notifier.OnChangeVirtualInt = 43;
+            Assert.AreEqual(3, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void OnSet_for_Virtual_ReferenceTypes()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnSetVirtualObject = new object();
+            notifier.OnSetVirtualObject = notifier.OnSetVirtualObject;
+            Assert.AreEqual(4, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void OnChange_for_Virtual_ReferenceTypes()
+        {
+            var expected = new[] { "OnChangeObject", "OnChangeVirtualObject", "OnChangeObject" };
+            var notifier = new ExplicitRefTypeNotifier();
+            notifier.OnChangeVirtualObject = new object();
+            notifier.OnChangeVirtualObject = notifier.OnChangeVirtualObject;
+            CollectionAssert.AreEqual(expected, notifier.Changes, $"Expected [{string.Join(", ", expected)}] but got [{string.Join(", ", notifier.Changes)}].");
+        }
+
+        [TestMethod]
+        public void OnSet_for_New_ValueTypes()
+        {
+            var notifier = new ExplicitValueTypeNotifier_Specialized();
+            notifier.OnSetInt = 43;
+            notifier.OnSetInt = 43;
+            Assert.AreEqual(4, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void OnChange_for_New_ValueTypes()
+        {
+            var notifier = new ExplicitValueTypeNotifier_Specialized();
+            notifier.OnChangeInt = 43;
+            notifier.OnChangeInt = 43;
+            Assert.AreEqual(3, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void OnSet_for_New_ReferenceTypes()
+        {
+            var notifier = new ExplicitValueTypeNotifier_Specialized();
+            notifier.OnSetVirtualObject = new object();
+            notifier.OnSetVirtualObject = notifier.OnSetVirtualObject;
+            Assert.AreEqual(2, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void OnChange_for_New_ReferenceTypes()
+        {
+            var notifier = new ExplicitValueTypeNotifier_Specialized();
+            notifier.OnChangeVirtualObject = new object();
+            notifier.OnChangeVirtualObject = notifier.OnSetVirtualObject;
+            Assert.AreEqual(1, notifier.ChangeCount);
+        }
+
+        #endregion Class inheritance
 
         #region NotifyTarget with different number of arguments
 
@@ -277,7 +372,7 @@ namespace Mathtone.MIST.Tests {
         #region Explicit/Implicit tests
 
         [TestMethod]
-        public void Implicit_notify_on_set()
+        public void Implicit_notify_OnSet()
         {
             var notifier = new ImplicitSpy();
             notifier.StringValue = "Value";
@@ -286,7 +381,7 @@ namespace Mathtone.MIST.Tests {
         }
         
         [TestMethod]
-        public void Implicit_notify_on_change()
+        public void Implicit_notify_OnChange()
         {
             var notifier = new ImplicitOnChangeSpy();
 
@@ -298,7 +393,7 @@ namespace Mathtone.MIST.Tests {
         }
 
         [TestMethod]
-        public void Explicit_notify_on_set_when_class_is_ImplicitOnChange()
+        public void Explicit_notify_OnSet_when_class_is_ImplicitOnChange()
         {
             var notifier = new ImplicitOnChangeSpy();
             notifier.ExplicitOnSetString = "Value";
@@ -307,89 +402,6 @@ namespace Mathtone.MIST.Tests {
         }
 
         #endregion Explicit/Implicit tests
-
-        #region Class inheritance
-
-        [TestMethod]
-        public void OnSet_notifies_for_inherited_properties()
-        {
-            var notifier = new ExplicitValueTypeNotifier();
-            notifier.OnSetBaseInt = 43;
-            notifier.OnSetBaseInt = 43;
-            Assert.AreEqual(2, notifier.ChangeCount);
-        }
-
-        [TestMethod]
-        public void OnChange_notifies_for_inherited_properties()
-        {
-            var notifier = new ExplicitValueTypeNotifier();
-            notifier.OnChangeBaseInt = 43;
-            notifier.OnChangeBaseInt = 43;
-            Assert.AreEqual(1, notifier.ChangeCount);
-        }
-
-        [TestMethod]
-        public void Virtual_ValueTypes_notify_OnSet()
-        {
-            var notifier = new ExplicitValueTypeNotifier();
-            notifier.OnSetVirtualInt = 43;
-            notifier.OnSetVirtualInt = 43;
-            Assert.AreEqual(4, notifier.ChangeCount);
-        }
-
-        [TestMethod]
-        public void Virtual_ValueTypes_notify_OnChange()
-        {
-            var notifier = new ExplicitValueTypeNotifier();
-            notifier.OnChangeVirtualInt = 43;
-            notifier.OnChangeVirtualInt = 43;
-            Assert.AreEqual(3, notifier.ChangeCount);
-        }
-
-        [TestMethod]
-        public void Virtual_ReferenceTypes_notify_OnSet()
-        {
-            var notifier = new ExplicitValueTypeNotifier();
-            notifier.OnSetVirtualObject = new object();
-            notifier.OnSetVirtualObject = notifier.OnSetVirtualObject;
-            Assert.AreEqual(4, notifier.ChangeCount);
-        }
-
-        [TestMethod]
-        public void Virtual_ReferenceTypes_notify_OnChange()
-        {
-            var expected = new[] { "OnChangeObject", "OnChangeVirtualObject", "OnChangeObject" };
-            var notifier = new ExplicitRefTypeNotifier();
-            notifier.OnChangeVirtualObject = new object();
-            notifier.OnChangeVirtualObject = notifier.OnChangeVirtualObject;
-            CollectionAssert.AreEqual(expected, notifier.Changes, $"Expected [{string.Join(", ", expected)}] but got [{string.Join(", ", notifier.Changes)}].");
-        }
-
-        [TestMethod]
-        public void Newed_ValueTypes_notify_OnSet()
-        {
-            Assert.Inconclusive("Not Implemented");
-        }
-
-        [TestMethod]
-        public void Newed_ValueTypes_notify_OnChange()
-        {
-            Assert.Inconclusive("Not Implemented");
-        }
-
-        [TestMethod]
-        public void Newed_ReferenceTypes_notify_OnSet()
-        {
-            Assert.Inconclusive("Not Implemented");
-        }
-
-        [TestMethod]
-        public void Newed_ReferenceTypes_notify_OnChange()
-        {
-            Assert.Inconclusive("Not Implemented");
-        }
-
-        #endregion Class inheritance
 
         #region Verify the manual implementations we glean on for Il hints actually work
 

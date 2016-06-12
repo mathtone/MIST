@@ -85,12 +85,15 @@ namespace Mathtone.MIST.TestNotifier.Cases {
 		public object OnChangeObject { get; set; }
 
         [Notify(NotificationStyle.OnSet)]
+        public object OnSetObject { get; set; }
+
+        [Notify(NotificationStyle.OnSet)]
         public override object OnSetVirtualObject
         {
             get { return base.OnSetVirtualObject; }
             set
             {
-                OnChangeObject = new object();
+                OnSetObject = new object();
                 base.OnSetVirtualObject = value;
             }
         }
@@ -162,6 +165,72 @@ namespace Mathtone.MIST.TestNotifier.Cases {
                 base.OnChangeVirtualInt = value;
             }
         }
+
+        [Notify(NotificationStyle.OnSet)]
+        public override object OnSetVirtualObject
+        {
+            get { return base.OnSetVirtualObject; }
+            set
+            {
+                OnSetBool = !OnSetBool;
+                base.OnSetVirtualObject = value;
+            }
+        }
+
+        [Notify(NotificationStyle.OnChange)]
+        public override object OnChangeVirtualObject
+        {
+            get { return base.OnChangeVirtualObject; }
+            set
+            {
+                OnChangeBool = !OnChangeBool;
+                base.OnChangeVirtualObject = value;
+            }
+        }
+    }
+
+    [Notifier]
+    public class ExplicitValueTypeNotifier_Specialized : ExplicitValueTypeNotifier
+    {
+        [Notify(NotificationStyle.OnChange)]
+        public new int OnChangeInt
+        {
+            get { return _onChangeInt; }
+            set
+            {
+                OnSetBool = !OnSetBool;
+                _onChangeInt = value;
+            }
+        }
+        int _onChangeInt;
+
+        [Notify(NotificationStyle.OnSet)]
+        public new int OnSetInt
+        {
+            get { return _onSetInt; }
+            set
+            {
+                OnSetBool = !OnSetBool;
+                _onSetInt = value;
+            }
+        }
+        int _onSetInt;
+
+        [Notify(NotificationStyle.OnSet)]
+        public new object OnSetVirtualObject
+        {
+            get { return _onSetVirtualObject; }
+            set { _onSetVirtualObject = value; }
+        }
+        object _onSetVirtualObject;
+
+        [Notify(NotificationStyle.OnChange)]
+        public new object OnChangeVirtualObject
+        {
+            get { return _onChangeVirtualObject; }
+            set { _onChangeVirtualObject = value; }
+        }
+        object _onChangeVirtualObject;
     }
 
     public class RefObjectOverrideEquals {
