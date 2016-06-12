@@ -23,8 +23,10 @@ namespace Mathtone.MIST.Processors {
 		public void Process(TypeDefinition typeDef) {
 
 			var notifierAttr = typeDef.GetAttribute(typeof(NotifierAttribute));
-
+            
 			if (notifierAttr != null) {
+
+                typeDef.CustomAttributes.Remove(notifierAttr); //Make sure we only ever MIST a property ONCE (mostly useful for unit tests)
 
 				//Use explicit mode if not otherwise specified
 				var mode = NotificationMode.Explicit;
