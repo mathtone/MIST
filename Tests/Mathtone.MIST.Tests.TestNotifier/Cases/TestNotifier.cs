@@ -12,13 +12,17 @@ namespace Mathtone.MIST.TestNotifier.Cases {
 
 		[Notify]
 		public int Value2 { get; set; }
-		[Notify]
+
+        [Notify]
 		public int Value3 { get; set; }
 
 		[Notify("Value1", "Value2", "Value3")]
 		public int All { get; set; }
 
-		public int Supressed { get; set; }
+        [Notify(NotificationStyle.OnChange, "Value1", "Value2", "Value3")]
+        public int AllOnChange { get; set; }
+
+        public int Supressed { get; set; }
 	}
 
 	[Notifier(NotificationMode.Implicit)]
@@ -39,22 +43,16 @@ namespace Mathtone.MIST.TestNotifier.Cases {
 	public class TestNotifier3 : TestNotifierBase, ITestNotifier {
 		string value1;
 		int value2, value3;
+
 		public string Value1 {
-			get {
-				return value1;
-			}
-			set {
-				value1 = value;
-			}
+			get { return value1; }
+			set { value1 = value; }
 		}
 		public int Value2 {
-			get {
-				return value2;
-			}
-			set {
-				value2 = value;
-			}
+			get { return value2; }
+			set { value2 = value; }
 		}
+
 		//this is the acid test
 		public int Value3 {
 			get {
@@ -81,37 +79,190 @@ namespace Mathtone.MIST.TestNotifier.Cases {
 
 	//Yodawg, I heard you liked notifiers, 
 	[Notifier(NotificationMode.Explicit)]
-	public class TestNotifier4 : TestNotifierBase {
+	public class ExplicitRefTypeNotifier : TestNotifierBase {
 
 		[Notify(NotificationStyle.OnChange)]
-		public TestNotifier1 SomeNotifier { get; set; }
+		public object OnChangeObject { get; set; }
 
-	}
+        [Notify(NotificationStyle.OnSet)]
+        public object OnSetObject { get; set; }
 
-	[Notifier(NotificationMode.Implicit, NotificationStyle.OnChange)]
-	public class TestNotifier5 : TestNotifierBase {
+        [Notify(NotificationStyle.OnSet)]
+        public override object OnSetVirtualObject
+        {
+            get { return base.OnSetVirtualObject; }
+            set
+            {
+                OnSetObject = new object();
+                base.OnSetVirtualObject = value;
+            }
+        }
 
-		public TestValue SomeValue { get; set; }
+        [Notify(NotificationStyle.OnChange)]
+        public override object OnChangeVirtualObject
+        {
+            get { return base.OnChangeVirtualObject; }
+            set
+            {
+                OnChangeObject = new object();
+                base.OnChangeVirtualObject = value;
+            }
+        }
+    }
 
-	}
+    [Notifier(NotificationMode.Implicit, NotificationStyle.OnChange)]
+	public class ImplicitOnChangeNotifier : TestNotifierBase {
 
-	[Notifier]
-	public class ValueTypeTestNotifier : TestNotifierBase {
+        public RefObjectOverrideEquals ObjectWithEquals { get; set; }
+        public StructOverrideEquals StructWithEquals { get; set; }
+    }
 
-		[Notify(NotificationStyle.OnSet)]
-		public string TestString { get; set; }
+    [Notifier]
+	public class ExplicitValueTypeNotifier : TestNotifierBase {
 
-		[Notify(NotificationStyle.OnChange)]
-		public int TestInt { get; set; }
-	}
+        [Notify(NotificationStyle.OnChange)]
+        public int OnChangeInt { get; set; }
 
-	public class TestValue {
+        [Notify(NotificationStyle.OnSet)]
+        public int OnSetInt { get; set; }
+
+        [Notify(NotificationStyle.OnChange)]
+        public double OnChangeDouble { get; set; }
+
+        [Notify(NotificationStyle.OnSet)]
+        public double OnSetDouble { get; set; }
+
+        [Notify(NotificationStyle.OnChange)]
+        public bool OnChangeBool { get; set; }
+
+        [Notify(NotificationStyle.OnSet)]
+        public bool OnSetBool { get; set; }
+
+        [Notify(NotificationStyle.OnChange)]
+        public int? OnChangeNullableInt { get; set; }
+
+        [Notify(NotificationStyle.OnSet)]
+        public int? OnSetNullableInt { get; set; }
+
+        [Notify(NotificationStyle.OnSet)]
+        public override int OnSetVirtualInt
+        {
+            get { return base.OnSetVirtualInt; }
+            set
+            {
+                OnSetBool = !OnSetBool;
+                base.OnSetVirtualInt = value;
+            }
+        }
+
+        [Notify(NotificationStyle.OnChange)]
+        public override int OnChangeVirtualInt
+        {
+            get { return base.OnChangeVirtualInt; }
+            set
+            {
+                OnChangeBool = !OnChangeBool;
+                base.OnChangeVirtualInt = value;
+            }
+        }
+
+        [Notify(NotificationStyle.OnSet)]
+        public override object OnSetVirtualObject
+        {
+            get { return base.OnSetVirtualObject; }
+            set
+            {
+                OnSetBool = !OnSetBool;
+                base.OnSetVirtualObject = value;
+            }
+        }
+
+        [Notify(NotificationStyle.OnChange)]
+        public override object OnChangeVirtualObject
+        {
+            get { return base.OnChangeVirtualObject; }
+            set
+            {
+                OnChangeBool = !OnChangeBool;
+                base.OnChangeVirtualObject = value;
+            }
+        }
+    }
+
+    [Notifier]
+    public class ExplicitValueTypeNotifier_Specialized : ExplicitValueTypeNotifier
+    {
+        [Notify(NotificationStyle.OnChange)]
+        public new int OnChangeInt
+        {
+            get { return _onChangeInt; }
+            set
+            {
+                OnSetBool = !OnSetBool;
+                _onChangeInt = value;
+            }
+        }
+        int _onChangeInt;
+
+        [Notify(NotificationStyle.OnSet)]
+        public new int OnSetInt
+        {
+            get { return _onSetInt; }
+            set
+            {
+                OnSetBool = !OnSetBool;
+                _onSetInt = value;
+            }
+        }
+        int _onSetInt;
+
+        [Notify(NotificationStyle.OnSet)]
+        public new object OnSetVirtualObject
+        {
+            get { return _onSetVirtualObject; }
+            set { _onSetVirtualObject = value; }
+        }
+        object _onSetVirtualObject;
+
+        [Notify(NotificationStyle.OnChange)]
+        public new object OnChangeVirtualObject
+        {
+            get { return _onChangeVirtualObject; }
+            set { _onChangeVirtualObject = value; }
+        }
+        object _onChangeVirtualObject;
+    }
+
+    public class RefObjectOverrideEquals {
 
 		public string Value { get; set; }
 
 		public override bool Equals(object obj) {
-			var value = obj as TestValue;
-			return value?.Value.ToLower() == this.Value.ToLower();
+			var value = obj as RefObjectOverrideEquals;
+            if (value == null) return false;
+            if (value.Value == null && this.Value == null) return true;
+            return value.Value.ToLower() == this.Value.ToLower();
 		}
-	}
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+    }
+
+    public struct StructOverrideEquals
+    {
+        public int Value { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            var value = (StructOverrideEquals)obj;
+            return value.Value % 2 == this.Value % 2;
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+    }
 }

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Mathtone.MIST.TestNotifier.Patterns {
 
-	[Notifier(NotificationMode.Implicit, NotificationStyle.OnSet)]
-	public class OnSetImplementation {
+    [Notifier(NotificationMode.Implicit, NotificationStyle.OnSet)]
+	public class OnSet_Misted {
 		public string StringValue { get; set; }
 
 		public int IntValue { get; set; }
@@ -18,8 +18,44 @@ namespace Mathtone.MIST.TestNotifier.Patterns {
 		}
 	}
 
-	[Notifier(NotificationMode.Implicit, NotificationStyle.OnChange)]
-	public class OnChangeImplementation {
+    public class OnSet_Manually
+    {
+        string stringValue;
+        int intValue;
+
+        public int ChangeCount => Changes.Count;
+        public List<string> Changes { get; } = new List<string>();
+
+        public string StringValue
+        {
+            get { return stringValue; }
+            set
+            {
+                stringValue = value;
+                OnPropertyChanged("StringValue");
+            }
+        }
+
+        public int IntValue
+        {
+            get { return intValue; }
+            set
+            {
+                intValue = value;
+                OnPropertyChanged("IntValue");
+            }
+        }
+
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            //Console.WriteLine(propertyName);
+            Changes.Add(propertyName);
+        }
+    }
+
+    [Notifier(NotificationMode.Implicit, NotificationStyle.OnChange)]
+	public class OnChange_Misted {
 		public string StringValue { get; set; }
 
 		public int IntValue { get; set; }
@@ -30,69 +66,55 @@ namespace Mathtone.MIST.TestNotifier.Patterns {
 		}
 	}
 
-	public class OnChangeStandard {
+	public class OnChange_Manually {
 		string stringValue;
 		int intValue;
 
-		public string StringValue {
+        public int ChangeCount => Changes.Count;
+        public List<string> Changes { get; } = new List<string>();
+
+        public string StringValue {
 			get { return stringValue; }
 			set {
 				var tValue = StringValue;
-				set_StringValue_Mist(value);
-				if (tValue.Equals(value)) {
-					OnChange("StringValue");
+                stringValue = value;
+                if (!tValue?.Equals(value) ?? (value != null))
+                {
+                    OnPropertyChanged("StringValue");
 				}
 			}
-		}
-
-		private void set_StringValue_Mist(string value) {
-			stringValue = value;
 		}
 
 		public int IntValue {
 			get { return intValue; }
 			set {
 				var tValue = IntValue;
-				set_IntValue_Mist(value);
-
-				if (!tValue.Equals(value)) {
-					OnChange("IntValue");
+                intValue = value;
+                if (!tValue.Equals(value)) {
+					OnPropertyChanged("IntValue");
 				}
 			}
 		}
 
-		private void set_IntValue_Mist(int value) {
-			intValue = value;
-		}
+        public Cases.RefObjectOverrideEquals TestValue
+        {
+            get { return _testValue; }
+            set
+            {
+                var tValue = _testValue;
+                _testValue = value;
+                if (!tValue?.Equals(value) ?? (value != null))
+                {
+                    OnPropertyChanged("TestValue");
+                }
+            }
+        }
+        private Cases.RefObjectOverrideEquals _testValue;
 
-		protected void OnChange(string propertyName) {
-			Console.WriteLine(propertyName);
-		}
-	}
-
-	public class OnSetStandard {
-		string stringValue;
-		int intValue;
-
-		public string StringValue {
-			get { return stringValue; }
-			set {
-				stringValue = value;
-				OnChange("StringValue");
-			}
-		}
-
-		public int IntValue {
-			get { return intValue; }
-			set {
-				intValue = value;
-				OnChange("IntValue");
-			}
-		}
-
-
-		protected void OnChange(string propertyName) {
-			Console.WriteLine(propertyName);
+        protected void OnPropertyChanged(string propertyName) {
+            //Console.WriteLine(propertyName);
+            Changes.Add(propertyName);
 		}
 	}
+
 }
