@@ -8,9 +8,21 @@ using System.Threading.Tasks;
 namespace Mathtone.MIST.TestNotifier.Cases
 {
     [Notifier]
-    public class Explicit_NoArgsSpy : TestNotifierBase
+    public class NotifierWithoutArguments
     {
+        [SuppressNotify]
+        public int ChangeCount { get; private set; }
+
         [Notify]
-        public string StringValue { get; set; }
+        public string OnSetString { get; set; }
+
+        [Notify(NotificationStyle.OnChange)]
+        public string OnChangeString { get; set; }
+
+        [NotifyTarget]
+        protected void OnPropertyChanged()
+        {
+            ChangeCount++;
+        }
     }
 }

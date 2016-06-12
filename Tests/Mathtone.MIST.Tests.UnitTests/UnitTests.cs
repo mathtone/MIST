@@ -14,7 +14,9 @@ namespace Mathtone.MIST.Tests {
 	[TestClass]
 	public class UnitTests {
 
-		DefaultAssemblyResolver assemblyResolver;
+        #region Tests Setup
+
+        DefaultAssemblyResolver assemblyResolver;
 		MetadataResolver metadataResolver;
 		TypeDefinition[] standardModuleTypes;
 
@@ -45,7 +47,7 @@ namespace Mathtone.MIST.Tests {
 		}
 		void InitializeStandardAssembly() {
 			var assemblyDef = null as AssemblyDefinition;
-			var assembly = typeof(TestNotifier.Patterns.OnChangeStandard).Module.Assembly;
+			var assembly = typeof(TestNotifier.Patterns.OnChange_Manually).Module.Assembly;
 
 			//Load the assembly.
 			using (var stream = File.OpenRead(assembly.Location)) {
@@ -54,66 +56,48 @@ namespace Mathtone.MIST.Tests {
 
 			standardModuleTypes = assemblyDef.Modules.SelectMany(a => a.Types).ToArray();
 		}
-		[TestMethod]
-		public void OnSet_Mist_Vs_Standard() {
+
+        #endregion Tests Setup
+
+        #region Some original test that may be redundant?
+
+        [TestMethod]
+		public void Misted_OnSet_generates_same_as_manually_written() {
 			if (standardModuleTypes == null) {
 				InitializeStandardAssembly();
 			}
-			var std = standardModuleTypes.Single(a => a.FullName == typeof(TestNotifier.Patterns.OnSetStandard).FullName);
-			var mist = standardModuleTypes.Single(a => a.FullName == typeof(TestNotifier.Patterns.OnSetImplementation).FullName);
-			var matches = std.Properties.Join(
-				mist.Properties, s => s.Name, i => i.Name, (s, i) => new {
-					Standard = s,
-					Mist = i
+
+			var expectedProperties = standardModuleTypes
+                .Single(a => a.FullName == typeof(TestNotifier.Patterns.OnSet_Manually).FullName)
+                .Properties;
+			var actualProperties = standardModuleTypes
+                .Single(a => a.FullName == typeof(TestNotifier.Patterns.OnSet_Misted).FullName)
+                .Properties;
+			var matchedProperties = expectedProperties.Join(
+				actualProperties, s => s.Name, i => i.Name, (s, i) => new {
+					Expected = s,
+					Actual = i
 				});
 
-			foreach (var pair in matches) {
+			foreach (var pair in matchedProperties) {
 
-				var unmisted = pair.Standard.SetMethod.Body.Instructions.ToArray();
-				var misted = pair.Mist.SetMethod.Body.Instructions.ToArray();
+				var expectedOpcodes = pair.Expected.SetMethod.Body.Instructions.ToArray();
+				var actualOpcodes = pair.Actual.SetMethod.Body.Instructions.ToArray();
 
-				Assert.AreEqual(unmisted.Length, misted.Length);
+                Assert.AreEqual(expectedOpcodes.Length, actualOpcodes.Length, $"Number of Opcodes in {pair.Actual.Name}.");
 
-				CollectionAssert.AreEqual(
-					unmisted.Select(a => a.OpCode).ToArray(),
-					misted.Select(a => a.OpCode).ToArray()
-				);
-			}
-		}
+                CollectionAssert.AreEqual(
+                    expectedOpcodes.Select(a => a.OpCode).ToArray(),
+                    actualOpcodes.Select(a => a.OpCode).ToArray(),
+                    $"Opcodes for {pair.Actual.Name} are different from {pair.Expected.Name}."
+                );
+            }
+        }
 
-		[TestMethod]
-		public void OnChange_Mist_Vs_Standard() {
-			if (standardModuleTypes == null) {
-				InitializeStandardAssembly();
-			}
-			var std = standardModuleTypes.Single(a => a.FullName == typeof(TestNotifier.Patterns.OnChangeStandard).FullName);
-			var mist = standardModuleTypes.Single(a => a.FullName == typeof(TestNotifier.Patterns.OnChangeImplementation).FullName);
-			var matches = std.Properties.Join(
-				mist.Properties, s => s.Name, i => i.Name, (s, i) => new {
-					Standard = s,
-					Mist = i
-				}
-			);
-
-			foreach (var pair in matches) {
-
-				var unmisted = pair.Standard.SetMethod.Body.Instructions.ToArray();
-				var misted = pair.Mist.SetMethod.Body.Instructions.ToArray();
-
-				Assert.AreEqual(unmisted.Length, misted.Length);
-
-				CollectionAssert.AreEqual(
-					unmisted.Select(a => a.OpCode).ToArray(),
-					misted.Select(a => a.OpCode).ToArray()
-				);
-			}
-		}
-
-		
         [TestMethod]
 		public void TestNotificationImplementation() {
 
-			var notifiers = new ITestNotifier[] {
+            var notifiers = new ITestNotifier[] {
 				new TestNotifier1(),
 				new TestNotifier2(),
 				new TestNotifier3(),
@@ -133,81 +117,174 @@ namespace Mathtone.MIST.Tests {
 			}
 		}
 
-		[TestMethod]
-		public void TestValueTypeTestNotifier() {
-			var not = new ValueTypeTestNotifier();
-			not.TestString = "1";
-			Assert.AreEqual(1, not.ChangeCount);
+        #endregion Some original test that may be redundant?
 
-			not.TestInt = 1;
-			Assert.AreEqual(2, not.ChangeCount);
+        #region Support for all types of parameter types
 
+        [TestMethod]
+		public void ValueTypes_notify_OnSet() {
+			var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnSetInt = 43;
+            notifier.OnSetInt= 43;
+            notifier.OnSetBool = true;
+            notifier.OnSetBool = true;
+            notifier.OnSetDouble = 3.14159261;
+            notifier.OnSetDouble = 3.14159261;
+            Assert.AreEqual(7, notifier.ChangeCount);
 		}
 
-		[TestMethod]
-		public void TestNotifierNotifierNotifier() {
-			var notifier = new TestNotifier4();
-			notifier.SomeNotifier = new TestNotifier1();
-			notifier.SomeNotifier = notifier.SomeNotifier;
-			Assert.AreEqual(1, notifier.ChangeCount);
-		}
+        [TestMethod]
+        public void ValueTypes_notify_OnChange()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnChangeInt = 43;
+            notifier.OnChangeInt = 43;
+            notifier.OnChangeBool = true;
+            notifier.OnChangeBool = true;
+            notifier.OnChangeDouble = 3.14159261;
+            notifier.OnChangeDouble = 3.14159261;
+            Assert.AreEqual(3, notifier.ChangeCount);
+        }
 
-		[TestMethod]
-		public void TestEqualityOverride() {
-			var notifier = new TestNotifier5();
-			notifier.SomeValue = new TestValue { Value = "A" };
-			notifier.SomeValue = new TestValue { Value = "a" };
+        [TestMethod]
+		public void ReferenceTypes_notify_OnChange() {
+			var notifier = new ExplicitRefTypeNotifier();
+			notifier.OnChangeObject = new object();
+			notifier.OnChangeObject = notifier.OnChangeObject;
 			Assert.AreEqual(1, notifier.ChangeCount);
 		}
 
         [TestMethod]
-        public void Explicit_notify_on_set_No_args()
+        public void ValueTypes_notify_OnChange_considers_Equals_override()
         {
-            var notifier = new Explicit_NoArgsSpy();
+            var notifier = new ImplicitOnChangeNotifier();
+            notifier.StructWithEquals = new StructOverrideEquals { Value = 73 };
+            notifier.StructWithEquals = new StructOverrideEquals { Value = 55 };
+            Assert.AreEqual(1, notifier.ChangeCount);
+        }
 
-            notifier.StringValue = "Value";
-            notifier.StringValue = "Value";
+        [TestMethod]
+        public void ReferenceTypes_notify_OnChange_considers_Equals_override()
+        {
+            var notifier = new ImplicitOnChangeNotifier();
+            notifier.ObjectWithEquals = new RefObjectOverrideEquals { Value = "A" };
+            notifier.ObjectWithEquals = new RefObjectOverrideEquals { Value = "a" };
+            Assert.AreEqual(1, notifier.ChangeCount);
+        }
 
+        [TestMethod]
+        public void Nullable_ValueTypes_notify_OnSet()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnSetNullableInt = 43;
+            notifier.OnSetNullableInt = 43;
+            notifier.OnSetNullableInt = null;
+            notifier.OnSetNullableInt = null;
+            Assert.AreEqual(4, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void Nullable_ValueTypes_notify_OnChange()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnChangeNullableInt = 43;
+            notifier.OnChangeNullableInt = 43;
+            notifier.OnChangeNullableInt = null;
+            notifier.OnChangeNullableInt = null;
+            Assert.AreEqual(2, notifier.ChangeCount);
+        }
+
+        #endregion Support for all types of parameter types
+
+        #region NotifyTarget with different number of arguments
+
+        [TestMethod]
+        public void OnSet_calls_NotifyTarget_without_arguments()
+        {
+            var notifier = new NotifierWithoutArguments();
+            notifier.OnSetString = "Value";
+            notifier.OnSetString = "Value";
             Assert.AreEqual(2, notifier.ChangeCount);
         }
 
         [TestMethod]
-        public void Explicit_notify_on_set_One_arg()
+        public void OnChange_calls_NotifyTarget_without_arguments()
         {
-            var expectedProperties = new[] { "StringValue", "StringValue" };
+            var notifier = new NotifierWithoutArguments();
+            notifier.OnChangeString = "Value";
+            notifier.OnChangeString = "Value";
+            Assert.AreEqual(1, notifier.ChangeCount);
+        }
 
-            var notifier = new Explicit_OneArgSpy();
-
-            notifier.StringValue = "ONE";
-            Assert.AreEqual("ONE", notifier.StringValue, "Value should change to ONE");
-
-            notifier.StringValue = "ONE";
+        [TestMethod]
+        public void OnSet_calls_NotifyTarget_with_one_argument()
+        {
+            var expectedProperties = new[] { "OnSetInt", "OnSetInt" };
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnSetInt = 43;
+            notifier.OnSetInt = 43;
             CollectionAssert.AreEqual(expectedProperties, notifier.Changes, $"Expected '{string.Join(",", expectedProperties)}' but got {string.Join(",", notifier.Changes)}.");
         }
+
+        [TestMethod]
+        public void OnChange_calls_NotifyTarget_with_one_argument()
+        {
+            var expectedProperties = new[] { "OnChangeInt", "OnChangeInt" };
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnChangeInt = 71;
+            notifier.OnChangeInt = 9;
+            CollectionAssert.AreEqual(expectedProperties, notifier.Changes, $"Expected '{string.Join(",", expectedProperties)}' but got {string.Join(",", notifier.Changes)}.");
+        }
+
+        [TestMethod]
+        public void OnSet_calls_NotifyTarget_with_two_arguments()
+        {
+            Assert.Fail("Support intentionally removed in v2?");
+        }
+
+        [TestMethod]
+        public void OnChange_calls_NotifyTarget_with_two_arguments()
+        {
+            Assert.Fail("Support intentionally removed in v2?");
+        }
+
+        [TestMethod]
+        public void OnSet_calls_NotifyTarget_for_multiple_properties()
+        {
+            var expectedChanges = new[] { "Value1", "Value2", "Value3", "Value1", "Value2", "Value3" };
+
+            var notifier = new TestNotifier1();
+            notifier.All = 4;
+            notifier.All = 4;
+
+            CollectionAssert.AreEqual(notifier.Changes, expectedChanges);
+        }
+
+        [TestMethod]
+        public void OnChange_calls_NotifyTarget_for_multiple_properties()
+        {
+            var expectedChanges = new[] { "Value1", "Value2", "Value3" };
+
+            var notifier = new TestNotifier1();
+            notifier.AllOnChange = 4;
+            notifier.AllOnChange = 4;
+
+            CollectionAssert.AreEqual(notifier.Changes, expectedChanges);
+        }
+
+        #endregion NotifyTarget with different number of arguments
+
+        #region Explicit/Implicit tests
 
         [TestMethod]
         public void Implicit_notify_on_set()
         {
             var notifier = new ImplicitSpy();
-
             notifier.StringValue = "Value";
             notifier.StringValue = "Value";
-
             Assert.AreEqual(2, notifier.ChangeCount);
         }
-
-        [TestMethod]
-        public void Explicit_notify_on_change()
-        {
-            var notifier = new ExplicitOnChangeSpy();
-
-            notifier.StringValue = "ONE";
-            Assert.AreEqual(1, notifier.ChangeCount);
-
-            notifier.StringValue = "ONE";
-            Assert.AreEqual(1, notifier.ChangeCount);
-        }
-
+        
         [TestMethod]
         public void Implicit_notify_on_change()
         {
@@ -224,12 +301,129 @@ namespace Mathtone.MIST.Tests {
         public void Explicit_notify_on_set_when_class_is_ImplicitOnChange()
         {
             var notifier = new ImplicitOnChangeSpy();
-
             notifier.ExplicitOnSetString = "Value";
             notifier.ExplicitOnSetString = "Value";
-
             Assert.AreEqual(2, notifier.ChangeCount);
         }
-		
-	}
+
+        #endregion Explicit/Implicit tests
+
+        #region Class inheritance
+
+        [TestMethod]
+        public void OnSet_notifies_for_inherited_properties()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnSetBaseInt = 43;
+            notifier.OnSetBaseInt = 43;
+            Assert.AreEqual(2, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void OnChange_notifies_for_inherited_properties()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnChangeBaseInt = 43;
+            notifier.OnChangeBaseInt = 43;
+            Assert.AreEqual(1, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void Virtual_ValueTypes_notify_OnSet()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnSetVirtualInt = 43;
+            notifier.OnSetVirtualInt = 43;
+            Assert.AreEqual(4, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void Virtual_ValueTypes_notify_OnChange()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnChangeVirtualInt = 43;
+            notifier.OnChangeVirtualInt = 43;
+            Assert.AreEqual(3, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void Virtual_ReferenceTypes_notify_OnSet()
+        {
+            var notifier = new ExplicitValueTypeNotifier();
+            notifier.OnSetVirtualObject = new object();
+            notifier.OnSetVirtualObject = notifier.OnSetVirtualObject;
+            Assert.AreEqual(4, notifier.ChangeCount);
+        }
+
+        [TestMethod]
+        public void Virtual_ReferenceTypes_notify_OnChange()
+        {
+            var expected = new[] { "OnChangeObject", "OnChangeVirtualObject", "OnChangeObject" };
+            var notifier = new ExplicitRefTypeNotifier();
+            notifier.OnChangeVirtualObject = new object();
+            notifier.OnChangeVirtualObject = notifier.OnChangeVirtualObject;
+            CollectionAssert.AreEqual(expected, notifier.Changes, $"Expected [{string.Join(", ", expected)}] but got [{string.Join(", ", notifier.Changes)}].");
+        }
+
+        [TestMethod]
+        public void Newed_ValueTypes_notify_OnSet()
+        {
+            Assert.Inconclusive("Not Implemented");
+        }
+
+        [TestMethod]
+        public void Newed_ValueTypes_notify_OnChange()
+        {
+            Assert.Inconclusive("Not Implemented");
+        }
+
+        [TestMethod]
+        public void Newed_ReferenceTypes_notify_OnSet()
+        {
+            Assert.Inconclusive("Not Implemented");
+        }
+
+        [TestMethod]
+        public void Newed_ReferenceTypes_notify_OnChange()
+        {
+            Assert.Inconclusive("Not Implemented");
+        }
+
+        #endregion Class inheritance
+
+        #region Verify the manual implementations we glean on for Il hints actually work
+
+        [TestMethod]
+        public void Manual_OnChange_only_triggers_if_propertys_Equals_override_returns_false()
+        {
+            var value1 = new RefObjectOverrideEquals { Value = "A" };
+            var value2 = new RefObjectOverrideEquals { Value = "a" };
+            Assert.AreEqual(value1, value2, "Test expects TestValue to implement Equal() as case insensitive.");
+
+            var notifier = new TestNotifier.Patterns.OnChange_Manually();
+            notifier.TestValue = value1;
+            Assert.AreEqual(1, notifier.ChangeCount, "Changing from null to value should trigger.");
+
+            notifier.TestValue = value2;
+            Assert.AreEqual(1, notifier.ChangeCount, "Changing from value to equal value should not trigger.");
+
+            notifier.TestValue = null;
+            Assert.AreEqual(2, notifier.ChangeCount, "Changing from value to null should trigger.");
+
+            notifier.TestValue = null;
+            Assert.AreEqual(2, notifier.ChangeCount, "Changing from null to null should not trigger.");
+        }
+
+        [TestMethod]
+        public void Manual_OnSet_triggers_on_each_set()
+        {
+            var notifier = new TestNotifier.Patterns.OnSet_Manually();
+            notifier.StringValue = "Value";
+            notifier.StringValue = "Value";
+            Assert.AreEqual(2, notifier.ChangeCount);
+        }
+
+        #endregion Verify the manual implementations we glean on for Il hints actually work
+
+    }
 }
