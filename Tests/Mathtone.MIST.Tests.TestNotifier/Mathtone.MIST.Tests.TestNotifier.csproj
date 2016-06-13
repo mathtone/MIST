@@ -75,11 +75,12 @@
   <ItemGroup>
     <Compile Include="Cases\ImplicitOnChangeSpy.cs" />
     <Compile Include="Cases\ImplicitSpy.cs" />
+    <Compile Include="Cases\NotifierWithTwoArguments.cs" />
     <Compile Include="ITestNotifier.cs" />
     <Compile Include="Cases\TestNotifier.cs" />
     <Compile Include="Patterns\ImplementationStandard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Cases\Explicit_NoArgsSpy.cs" />
+    <Compile Include="Cases\NotifierWithoutArguments.cs" />
     <Compile Include="TestNotifierBase.cs" />
   </ItemGroup>
   <ItemGroup>

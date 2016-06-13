@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Mathtone.MIST.TestNotifier {
+
+	[Notifier]
 	public class TestNotifierBase : IChangeTracker, IChangeCounter {
 		public int ChangeCount => Changes.Count;
 		public List<string> Changes { get; } = new List<string>();

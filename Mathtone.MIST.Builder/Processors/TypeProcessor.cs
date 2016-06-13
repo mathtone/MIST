@@ -23,10 +23,10 @@ namespace Mathtone.MIST.Processors {
 		public void Process(TypeDefinition typeDef) {
 
 			var notifierAttr = typeDef.GetAttribute(typeof(NotifierAttribute));
-            
+
 			if (notifierAttr != null) {
 
-                typeDef.CustomAttributes.Remove(notifierAttr); //Make sure we only ever MIST a property ONCE (mostly useful for unit tests)
+				typeDef.CustomAttributes.Remove(notifierAttr); //Make sure we only ever MIST a property ONCE (mostly useful for unit tests)
 
 				//Use explicit mode if not otherwise specified
 				var mode = NotificationMode.Explicit;
@@ -75,6 +75,10 @@ namespace Mathtone.MIST.Processors {
 							break;
 						case 1:
 							isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName;
+							break;
+						case 2:
+							isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName;
+							isValid = methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName;
 							break;
 					}
 					if (isValid) {

@@ -74,14 +74,17 @@ namespace Mathtone.MIST.Processors {
 			foreach (var name in strategy.NotifyValues) {
 
 				yield return ilProcessor.Create(OpCodes.Ldarg_0);
-				yield return ilProcessor.Create(OpCodes.Ldstr, name);
+
 
 				if (strategy.NotifyTarget.Parameters.Count > 0) {
-					var opCode = strategy.NotifyTargetDefinition.IsVirtual ?
-						OpCodes.Callvirt : OpCodes.Call;
-					yield return ilProcessor.Create(opCode, strategy.NotifyTarget);
+					yield return ilProcessor.Create(OpCodes.Ldstr, name);
 				}
-
+				if (strategy.NotifyTarget.Parameters.Count > 1) {
+					yield return ilProcessor.Create(OpCodes.Ldarg_1);
+				}
+				var opCode = strategy.NotifyTargetDefinition.IsVirtual ?
+						OpCodes.Callvirt : OpCodes.Call;
+				yield return ilProcessor.Create(opCode, strategy.NotifyTarget);
 				yield return ilProcessor.Create(OpCodes.Nop);
 			}
 		}
@@ -95,12 +98,12 @@ namespace Mathtone.MIST.Processors {
 			var rtn = msil.Create(OpCodes.Ret);
 			newMethod.DeclaringType = setMethod.DeclaringType;
 			newMethod.Parameters.Add(new ParameterDefinition(setMethod.Parameters[0].ParameterType));
-			
+
 			if (strategy.NotificationStyle == NotificationStyle.OnChange) {
 
 				var boolType = strategy.Property.Module.ImportReference(typeof(bool));
 				var propertyType = strategy.Property.PropertyType.Resolve();
-				
+
 				//find equals method
 				var equalsMethod = SeekMethod(
 					propertyType,
@@ -155,8 +158,6 @@ namespace Mathtone.MIST.Processors {
 							msil.Create(OpCodes.Ldloc_0),
 							msil.Create(OpCodes.Ldarg_1),
 							msil.Create(OpCodes.Call,equality),
-							//msil.Create(OpCodes.Ceq),
-
 							msil.Create(OpCodes.Ldc_I4_0),
 							msil.Create(OpCodes.Ceq),
 							msil.Create(OpCodes.Stloc_1),
@@ -197,7 +198,7 @@ namespace Mathtone.MIST.Processors {
 
 			var rtn = GetMethods(type, evaluator).FirstOrDefault();
 			if (rtn == null && type.BaseType != null) {
-				rtn = SeekMethod(type.BaseType.Resolve(),evaluator);
+				rtn = SeekMethod(type.BaseType.Resolve(), evaluator);
 			}
 			return rtn;
 			//MethodDefinition rtn;
@@ -211,6 +212,7 @@ namespace Mathtone.MIST.Processors {
 				currentInstruction = instruction;
 			}
 		}
+
 		static void InsertAfter(ILProcessor ilProcessor, Instruction instruction, Instruction insertionPoint) =>
 			InsertAfter(ilProcessor, new[] { instruction }, insertionPoint);
 

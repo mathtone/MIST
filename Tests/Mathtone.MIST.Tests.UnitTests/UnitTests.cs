@@ -20,9 +20,6 @@ namespace Mathtone.MIST.Tests {
 		MetadataResolver metadataResolver;
 		TypeDefinition[] standardModuleTypes;
 
-		//****************
-		//NOTE: Clean and rebuild the solution when these tests are run otherwise notifications will be implemented twice and the tests will fail.
-		//****************
 		static bool initialized;
 
 		static string ApplicationPath {
@@ -254,7 +251,11 @@ namespace Mathtone.MIST.Tests {
 
 		[TestMethod]
 		public void OnSet_calls_NotifyTarget_with_two_arguments() {
-			Assert.Fail("Support intentionally removed in v2?");
+			var notifier = new NotifierWithTwoArguments();
+			notifier.OnSetString = "Value";
+			notifier.OnSetString = "Value";
+			Assert.AreEqual(2, notifier.ChangeCount);
+			//Assert.Fail("Support intentionally removed in v2?");
 		}
 
 		[TestMethod]
