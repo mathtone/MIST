@@ -253,7 +253,7 @@ namespace Mathtone.MIST.Tests {
 		public void OnSet_calls_NotifyTarget_with_two_arguments() {
 			var notifier = new NotifierWithTwoArguments();
 			notifier.OnSetString = "Value";
-			notifier.OnSetString = "Value";
+			notifier.OnSetInt = 1;
 			Assert.AreEqual(2, notifier.ChangeCount);
 			//Assert.Fail("Support intentionally removed in v2?");
 		}

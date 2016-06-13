@@ -15,6 +15,9 @@ namespace Mathtone.MIST.TestNotifier.Cases {
 		[Notify]
 		public string OnSetString { get; set; }
 
+		[Notify]
+		public int OnSetInt { get; set; }
+
 		[Notify(NotificationStyle.OnSet)]
 		public string OnChangeString { get; set; }
 

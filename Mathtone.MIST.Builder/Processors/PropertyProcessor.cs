@@ -15,6 +15,7 @@ namespace Mathtone.MIST.Processors {
 		NotificationMode defaultMode;
 		NotificationStyle defaultStyle;
 		MethodReference notifyTarget;
+		
 		//static MethodInfo equalsMethod = typeof(object).GetMethods().FirstOrDefault(a => a.Name == "Equals" && !a.IsStatic);
 		public bool ContainsChanges { get; protected set; }
 
@@ -80,6 +81,9 @@ namespace Mathtone.MIST.Processors {
 					yield return ilProcessor.Create(OpCodes.Ldstr, name);
 				}
 				if (strategy.NotifyTarget.Parameters.Count > 1) {
+					if (strategy.Property.PropertyType.IsValueType) {
+						yield return ilProcessor.Create(OpCodes.Box,strategy.NotifyTarget.Parameters[1].ParameterType);
+					}
 					yield return ilProcessor.Create(OpCodes.Ldarg_1);
 				}
 				var opCode = strategy.NotifyTargetDefinition.IsVirtual ?
@@ -102,6 +106,8 @@ namespace Mathtone.MIST.Processors {
 			if (strategy.NotificationStyle == NotificationStyle.OnChange) {
 
 				var boolType = strategy.Property.Module.ImportReference(typeof(bool));
+				
+
 				var propertyType = strategy.Property.PropertyType.Resolve();
 
 				//find equals method
