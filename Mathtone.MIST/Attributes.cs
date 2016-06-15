@@ -44,7 +44,6 @@ namespace Mathtone.MIST {
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class)]
 	public class NotifierAttribute : Attribute {
-
 		public NotificationMode NotificationMode { get; protected set; }
 		public NotificationStyle DefaultStyle { get; protected set; }
 

@@ -15,8 +15,8 @@ namespace Mathtone.MIST.Processors {
 		NotificationMode defaultMode;
 		NotificationStyle defaultStyle;
 		MethodReference notifyTarget;
-		
-		//static MethodInfo equalsMethod = typeof(object).GetMethods().FirstOrDefault(a => a.Name == "Equals" && !a.IsStatic);
+
+		static MethodInfo defaultEqualsMethod = typeof(object).GetMethods().FirstOrDefault(a => a.Name == "Equals" && !a.IsStatic);
 		public bool ContainsChanges { get; protected set; }
 
 		public PropertyProcessor(MethodReference target, NotificationMode mode, NotificationStyle style) {
@@ -76,13 +76,12 @@ namespace Mathtone.MIST.Processors {
 
 				yield return ilProcessor.Create(OpCodes.Ldarg_0);
 
-
 				if (strategy.NotifyTarget.Parameters.Count > 0) {
 					yield return ilProcessor.Create(OpCodes.Ldstr, name);
 				}
 				if (strategy.NotifyTarget.Parameters.Count > 1) {
 					if (strategy.Property.PropertyType.IsValueType) {
-						yield return ilProcessor.Create(OpCodes.Box,strategy.NotifyTarget.Parameters[1].ParameterType);
+						yield return ilProcessor.Create(OpCodes.Box, strategy.NotifyTarget.Parameters[1].ParameterType);
 					}
 					yield return ilProcessor.Create(OpCodes.Ldarg_1);
 				}
@@ -106,77 +105,124 @@ namespace Mathtone.MIST.Processors {
 			if (strategy.NotificationStyle == NotificationStyle.OnChange) {
 
 				var boolType = strategy.Property.Module.ImportReference(typeof(bool));
-				
 
 				var propertyType = strategy.Property.PropertyType.Resolve();
 
 				//find equals method
-				var equalsMethod = SeekMethod(
-					propertyType,
-					a =>
-						a.Name == "Equals" &&
-						a.Parameters.Count == 1
-				);
-				var equality = strategy.Property.Module.ImportReference(equalsMethod);
+				//var equalsMethod = SeekMethod(
+				//	propertyType,
+				//	a =>
+				//		a.Name == "Equals" &&
+				//	//a.Overrides.Any() &&
+				//	a.Parameters.Count == 1
+				//);
 
-				var equalityReference = equalsMethod.Resolve();
+				//var equality = null as MethodReference;
+				var equality = strategy.Property.Module.ImportReference(defaultEqualsMethod);
+				//var equalityReference = equalsMethod.Resolve();
 
-				var v1 = new VariableDefinition(strategy.Property.PropertyType);
-				var v2 = new VariableDefinition(boolType);
-				var v3 = new VariableDefinition(boolType);
+				//;
+				//var v2 = new VariableDefinition(boolType);
+				//var v3 = new VariableDefinition(boolType);	
+				//newMethod.Body.Variabl es.Add(v2);
+				//newMethod.Body.Variables.Add(v3);
 
-				newMethod.Body.Variables.Add(v1);
-				newMethod.Body.Variables.Add(v2);
-				newMethod.Body.Variables.Add(v3);
-
-				if (!propertyType.IsPrimitive) {
+				if (propertyType.IsValueType) {
+					var v1 = new VariableDefinition(strategy.Property.PropertyType);
+					var v2 = new VariableDefinition(boolType);
+					newMethod.Body.Variables.Add(v1);
+					newMethod.Body.Variables.Add(v2);
 					instructions.AddRange(
 						new[] {
-							msil.Create(OpCodes.Nop),
 							msil.Create(OpCodes.Ldarg_0),
-							msil.Create(OpCodes.Call,strategy.Property.GetMethod),
+							msil.Create(OpCodes.Call, strategy.Property.GetMethod),
 							msil.Create(OpCodes.Stloc_0),
 							msil.Create(OpCodes.Ldarg_0),
 							msil.Create(OpCodes.Ldarg_1),
 							msil.Create(OpCodes.Call, setMethod),
-							msil.Create(OpCodes.Nop),
 							msil.Create(OpCodes.Ldloc_0),
+							msil.Create(OpCodes.Box,v1.VariableType),
 							msil.Create(OpCodes.Ldarg_1),
-							msil.Create(equalityReference.IsVirtual? OpCodes.Callvirt:OpCodes.Call,equality),
-							msil.Create(OpCodes.Stloc_1),
-							msil.Create(OpCodes.Ldloc_1),
-							msil.Create(OpCodes.Brfalse_S,rtn),
-							msil.Create(OpCodes.Nop)
-						}
-					);
-				}
-				else {
-					instructions.AddRange(
-						new[] {
+							msil.Create(OpCodes.Box,v1.VariableType),
+							msil.Create(defaultEqualsMethod.IsVirtual? OpCodes.Callvirt:OpCodes.Call,equality),
 							msil.Create(OpCodes.Nop),
-							msil.Create(OpCodes.Ldarg_0),
-							msil.Create(OpCodes.Call,strategy.Property.GetMethod),
-							msil.Create(OpCodes.Stloc_0),
-							msil.Create(OpCodes.Ldarg_0),
-							msil.Create(OpCodes.Ldarg_1),
-							msil.Create(OpCodes.Call, setMethod),
-							msil.Create(OpCodes.Nop),
-							msil.Create(OpCodes.Ldloc_0),
-							msil.Create(OpCodes.Ldarg_1),
-							msil.Create(OpCodes.Call,equality),
 							msil.Create(OpCodes.Ldc_I4_0),
 							msil.Create(OpCodes.Ceq),
 							msil.Create(OpCodes.Stloc_1),
 							msil.Create(OpCodes.Ldloc_1),
 							msil.Create(OpCodes.Brfalse_S,rtn),
-							msil.Create(OpCodes.Nop)
+							msil.Create(OpCodes.Nop),
+
 						}
 					);
-				};
+					//);
+				}
+				else {
+					instructions.AddRange(
+						new[] {
+							msil.Create(OpCodes.Ldarg_0),
+							msil.Create(OpCodes.Call, strategy.Property.GetMethod),
+							msil.Create(OpCodes.Ldarg_0),
+							msil.Create(OpCodes.Ldarg_1),
+							msil.Create(OpCodes.Call, setMethod),
+							msil.Create(OpCodes.Ldarg_1),
+							msil.Create(defaultEqualsMethod.IsVirtual? OpCodes.Callvirt:OpCodes.Call,equality),
+							msil.Create(OpCodes.Brtrue_S,rtn)
+						}
+					);
+				}
 
 				instructions.AddRange(CallNotifyTargetInstructions(msil, strategy));
-				instructions.Add(msil.Create(OpCodes.Nop));
 				instructions.Add(rtn);
+
+				//if (!propertyType.IsValueType) {
+				//	instructions.AddRange(
+				//		new[] {
+				//			msil.Create(OpCodes.Nop),
+				//			msil.Create(OpCodes.Ldarg_0),
+				//			msil.Create(OpCodes.Call,strategy.Property.GetMethod),
+				//			msil.Create(OpCodes.Stloc_0),
+				//			msil.Create(OpCodes.Ldarg_0),
+				//			msil.Create(OpCodes.Ldarg_1),
+				//			msil.Create(OpCodes.Call, setMethod),
+				//			msil.Create(OpCodes.Nop),
+				//			msil.Create(OpCodes.Ldloc_0),
+				//			msil.Create(OpCodes.Ldarg_1),
+				//			msil.Create(equalityReference.IsVirtual? OpCodes.Callvirt:OpCodes.Call,equality),
+				//			msil.Create(OpCodes.Stloc_1),
+				//			msil.Create(OpCodes.Ldloc_1),
+				//			msil.Create(OpCodes.Brfalse_S,rtn),
+				//			msil.Create(OpCodes.Nop)
+				//		}
+				//	);
+				//}
+				//else {
+				//	instructions.AddRange(
+				//		new[] {
+				//			msil.Create(OpCodes.Nop),
+				//			msil.Create(OpCodes.Ldarg_0),
+				//			msil.Create(OpCodes.Call,strategy.Property.GetMethod),
+				//			msil.Create(OpCodes.Stloc_0),
+				//			msil.Create(OpCodes.Ldarg_0),
+				//			msil.Create(OpCodes.Ldarg_1),
+				//			msil.Create(OpCodes.Call, setMethod),
+				//			msil.Create(OpCodes.Nop),
+				//			msil.Create(OpCodes.Ldloc_0),
+				//			msil.Create(OpCodes.Ldarg_1),
+				//			msil.Create(OpCodes.Call,equality),
+				//			msil.Create(OpCodes.Ldc_I4_0),
+				//			msil.Create(OpCodes.Ceq),
+				//			msil.Create(OpCodes.Stloc_1),
+				//			msil.Create(OpCodes.Ldloc_1),
+				//			msil.Create(OpCodes.Brfalse_S,rtn),
+				//			msil.Create(OpCodes.Nop)
+				//		}
+				//	);
+				//};
+
+				//instructions.AddRange(CallNotifyTargetInstructions(msil, strategy));
+				//instructions.Add(msil.Create(OpCodes.Nop));
+				//instructions.Add(rtn);
 
 			}
 			else {
