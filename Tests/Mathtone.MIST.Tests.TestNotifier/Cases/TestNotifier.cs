@@ -133,7 +133,9 @@ namespace Mathtone.MIST.TestNotifier.Cases {
         public double OnSetDouble { get; set; }
 
         [Notify(NotificationStyle.OnChange)]
-        public bool OnChangeBool { get; set; }
+        public bool OnChangeBool {
+			get;
+			set; }
 
         [Notify(NotificationStyle.OnSet)]
         public bool OnSetBool { get; set; }
