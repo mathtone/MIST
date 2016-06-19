@@ -2,6 +2,15 @@
 
 namespace Mathtone.MIST {
 
+	public class ImplementationSummaryAttribute : Attribute {
+
+		public DateTimeOffset ImplementationTime { get; private set; }
+
+		public ImplementationSummaryAttribute(DateTimeOffset implementationTime) {
+			this.ImplementationTime = implementationTime;
+		}
+	}
+
 	/// <summary>
 	/// Used to mark a property as a notification provider.
 	/// </summary>

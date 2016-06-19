@@ -19,16 +19,6 @@ namespace Mathtone.MIST.Processors {
 		static MethodInfo defaultEqualsMethod = typeof(object).GetMethods().FirstOrDefault(a => a.Name == "Equals" && a.IsStatic);
 		public bool ContainsChanges { get; protected set; }
 
-		static PropertyProcessor() {
-			//var @object = assembly.MainModule.TypeSystem.Object.Resolve();
-
-			//defaultEqualsMethod = @object.Methods.Single(
-			//	m => m.Name == "Equals"
-			//		&& m.Parameters.Count == 2
-			//		&& m.Parameters[0].ParameterType.MetadataType == MetadataType.Object
-			//		&& m.Parameters[1].ParameterType.MetadataType == MetadataType.Object);
-		}
-
 		public PropertyProcessor(MethodReference target, NotificationMode mode, NotificationStyle style) {
 			this.notifyTarget = target;
 			this.defaultMode = mode;
@@ -37,7 +27,6 @@ namespace Mathtone.MIST.Processors {
 
 		public void Process(PropertyDefinition property) {
 			var strategy = new PropertyStrategy(property, defaultMode, defaultStyle, notifyTarget);
-			//var strategy = GetStrategy(property, defaultMode, notifyTarget);
 			if (!strategy.IsIgnored) {
 				ImplementStrategy(strategy);
 			}
@@ -102,46 +91,53 @@ namespace Mathtone.MIST.Processors {
 			}
 		}
 
+		static MethodDefinition DuplicateMethod(MethodDefinition sourceMethod, string newMethodName) {
+
+			var rtn = new MethodDefinition(newMethodName, sourceMethod.Attributes, sourceMethod.ReturnType);
+			var instructions = new List<Instruction>();
+			var il = rtn.Body.GetILProcessor();
+			rtn.DeclaringType = sourceMethod.DeclaringType;
+			foreach (var p in sourceMethod.Parameters) {
+				rtn.Parameters.Add(p);
+			}
+			foreach (var v in sourceMethod.Body.Variables) {
+				rtn.Body.Variables.Add(v);
+			}
+			//foreach (var i in sourceMethod.Body.Instructions) {
+			instructions.AddRange(sourceMethod.Body.Instructions);
+			foreach (var instruction in instructions) {
+				rtn.Body.Instructions.Add(instruction);
+			}
+			//}
+			//read from source,
+			//write to target
+
+			return rtn;
+		}
 		static void ImplementWrapped(ImplementationStrategy strategy) {
 
 			var setMethod = strategy.Property.SetMethod;
-			var newMethod = new MethodDefinition(setMethod.Name, setMethod.Attributes, setMethod.ReturnType);
-			var msil = newMethod.Body.GetILProcessor();
+			//var newMethod = new MethodDefinition(setMethod.Name, setMethod.Attributes, setMethod.ReturnType);
+			//$"{setMethod.Name}`mist"
+			//var newMethod = new MethodDefinition(setMethod.Name, setMethod.Attributes, setMethod.ReturnType);
+			var newMethod = DuplicateMethod(setMethod, $"{setMethod.Name}`mist");
+			var msil = setMethod.Body.GetILProcessor();
 			var instructions = new List<Instruction>();
 			var rtn = msil.Create(OpCodes.Ret);
-			newMethod.DeclaringType = setMethod.DeclaringType;
-			newMethod.Parameters.Add(new ParameterDefinition(setMethod.Parameters[0].ParameterType));
+			//newMethod.DeclaringType = setMethod.DeclaringType;
+			//newMethod.Parameters.Add(new ParameterDefinition(setMethod.Parameters[0].ParameterType));
 
 			if (strategy.NotificationStyle == NotificationStyle.OnChange) {
 
 				var boolType = strategy.Property.Module.ImportReference(typeof(bool));
-
 				var propertyType = strategy.Property.PropertyType.Resolve();
-
-				//find equals method
-				var equalsMethod = SeekMethod(
-					propertyType,
-					a =>
-						a.Name == "Equals" &&
-					a.Overrides.Any() &&
-					a.Parameters.Count == 1
-				);
-
-				//var equality = null as MethodReference;
-				//strategy.Property.PropertyType.f
-				//strategy.Property.PropertyType.Module.TypeSystem.Object.Resolve()
-				//var eqd = strategy.Property.PropertyType.Module.Import(;
-				if(equalsMethod != null) {
-					;
-				}
-
 				var equality = strategy.Property.Module.ImportReference(defaultEqualsMethod);
 				var equalityReference = equality.Resolve();
 
 				var v1 = new VariableDefinition(strategy.Property.PropertyType);
 				var v2 = new VariableDefinition(boolType);
-				newMethod.Body.Variables.Add(v1);
-				newMethod.Body.Variables.Add(v2);
+				setMethod.Body.Variables.Add(v1);
+				setMethod.Body.Variables.Add(v2);
 				instructions.Add(msil.Create(OpCodes.Nop));
 
 				//This is what's happening here
@@ -154,7 +150,7 @@ namespace Mathtone.MIST.Processors {
 							msil.Create(OpCodes.Stloc_0),
 							msil.Create(OpCodes.Ldarg_0),
 							msil.Create(OpCodes.Ldarg_1),
-							msil.Create(OpCodes.Call, setMethod),
+							msil.Create(OpCodes.Call, newMethod),
 							msil.Create(OpCodes.Ldloc_0),
 							msil.Create(OpCodes.Box,v1.VariableType),
 							msil.Create(OpCodes.Ldarg_1),
@@ -178,7 +174,7 @@ namespace Mathtone.MIST.Processors {
 							msil.Create(OpCodes.Stloc_0),
 							msil.Create(OpCodes.Ldarg_0),
 							msil.Create(OpCodes.Ldarg_1),
-							msil.Create(OpCodes.Call, setMethod),
+							msil.Create(OpCodes.Call, newMethod),
 							msil.Create(OpCodes.Ldloc_0),
 							msil.Create(OpCodes.Ldarg_1),
 							msil.Create(OpCodes.Call,equality),
@@ -193,74 +189,22 @@ namespace Mathtone.MIST.Processors {
 				}
 
 				instructions.AddRange(CallNotifyTargetInstructions(msil, strategy));
-				//instructions.Add(msil.Create(OpCodes.Nop));
 				instructions.Add(rtn);
-
-				//if (!propertyType.IsValueType) {
-				//	instructions.AddRange(
-				//		new[] {
-				//			msil.Create(OpCodes.Nop),
-				//			msil.Create(OpCodes.Ldarg_0),
-				//			msil.Create(OpCodes.Call,strategy.Property.GetMethod),
-				//			msil.Create(OpCodes.Stloc_0),
-				//			msil.Create(OpCodes.Ldarg_0),
-				//			msil.Create(OpCodes.Ldarg_1),
-				//			msil.Create(OpCodes.Call, setMethod),
-				//			msil.Create(OpCodes.Nop),
-				//			msil.Create(OpCodes.Ldloc_0),
-				//			msil.Create(OpCodes.Ldarg_1),
-				//			msil.Create(equalityReference.IsVirtual? OpCodes.Callvirt:OpCodes.Call,equality),
-				//			msil.Create(OpCodes.Stloc_1),
-				//			msil.Create(OpCodes.Ldloc_1),
-				//			msil.Create(OpCodes.Brfalse_S,rtn),
-				//			msil.Create(OpCodes.Nop)
-				//		}
-				//	);
-				//}
-				//else {
-				//	instructions.AddRange(
-				//		new[] {
-				//			msil.Create(OpCodes.Nop),
-				//			msil.Create(OpCodes.Ldarg_0),
-				//			msil.Create(OpCodes.Call,strategy.Property.GetMethod),
-				//			msil.Create(OpCodes.Stloc_0),
-				//			msil.Create(OpCodes.Ldarg_0),
-				//			msil.Create(OpCodes.Ldarg_1),
-				//			msil.Create(OpCodes.Call, setMethod),
-				//			msil.Create(OpCodes.Nop),
-				//			msil.Create(OpCodes.Ldloc_0),
-				//			msil.Create(OpCodes.Ldarg_1),
-				//			msil.Create(OpCodes.Call,equality),
-				//			msil.Create(OpCodes.Ldc_I4_0),
-				//			msil.Create(OpCodes.Ceq),
-				//			msil.Create(OpCodes.Stloc_1),
-				//			msil.Create(OpCodes.Ldloc_1),
-				//			msil.Create(OpCodes.Brfalse_S,rtn),
-				//			msil.Create(OpCodes.Nop)
-				//		}
-				//	);
-				//};
-
-				//instructions.AddRange(CallNotifyTargetInstructions(msil, strategy));
-				//instructions.Add(msil.Create(OpCodes.Nop));
-				//instructions.Add(rtn);
 
 			}
 			else {
 				instructions.AddRange(new[] {
 					msil.Create(OpCodes.Ldarg_0),
 					msil.Create(OpCodes.Ldarg_1),
-					msil.Create(OpCodes.Call, setMethod),
+					msil.Create(OpCodes.Call, newMethod),
 				});
 				instructions.AddRange(CallNotifyTargetInstructions(msil, strategy));
 				instructions.Add(rtn);
 			}
-
+			setMethod.Body.Instructions.Clear();
 			foreach (var instruction in instructions) {
-				newMethod.Body.Instructions.Add(instruction);
+				setMethod.Body.Instructions.Add(instruction);
 			}
-			setMethod.Name = $"{setMethod.Name}`mist"; // "misted`" + setMethod.Name;
-			strategy.Property.SetMethod = newMethod;
 			newMethod.DeclaringType.Methods.Add(newMethod);
 		}
 
@@ -274,8 +218,6 @@ namespace Mathtone.MIST.Processors {
 				rtn = SeekMethod(type.BaseType.Resolve(), evaluator);
 			}
 			return rtn;
-			//MethodDefinition rtn;
-
 		}
 
 		static void InsertAfter(ILProcessor ilProcessor, IEnumerable<Instruction> instructions, Instruction insertionPoint) {
