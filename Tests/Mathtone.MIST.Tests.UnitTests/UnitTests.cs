@@ -208,20 +208,21 @@ namespace Mathtone.MIST.Tests {
 		[TestMethod]
 		public void OnSet_for_New_ReferenceTypes() {
 			var notifier = new ExplicitValueTypeNotifier_Specialized();
-			notifier.OnSetVirtualObject = new object();
-			notifier.OnSetVirtualObject = notifier.OnSetVirtualObject;
+            var expectedObject = new object();
+            notifier.OnSetVirtualObject = expectedObject;
+            Assert.AreEqual(expectedObject, notifier.OnSetVirtualObject);
+			notifier.OnSetVirtualObject = expectedObject;
 			Assert.AreEqual(2, notifier.ChangeCount);
 		}
 
 		[TestMethod]
 		public void OnChange_for_New_ReferenceTypes() {
 			var notifier = new ExplicitValueTypeNotifier_Specialized();
-			var obj = new object();
-			notifier.OnChangeVirtualObject = obj;
-			notifier.OnChangeVirtualObject = obj;
-			notifier.OnChangeVirtualObject = notifier.OnSetVirtualObject;
-			//I think 2 changes is right here, the first is a change from null 
-			Assert.AreEqual(2, notifier.ChangeCount);
+			var expectedObject = new object();
+			notifier.OnChangeVirtualObject = expectedObject;
+            Assert.AreEqual(expectedObject, notifier.OnChangeVirtualObject);
+            notifier.OnChangeVirtualObject = expectedObject;
+            Assert.AreEqual(1, notifier.ChangeCount);
 		}
 
 		#endregion Class inheritance
