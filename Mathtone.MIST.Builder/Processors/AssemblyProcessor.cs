@@ -44,6 +44,6 @@ namespace Mathtone.MIST.Processors {
 		}
 
 		public CustomAttribute GetAttribute(AssemblyDefinition definition, Type attributeType) =>
-			definition.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == attributeType.FullName);
+			definition.CustomAttributes.SingleOrDefault(a => a.AttributeType.FullName == attributeType.FullName);
 	}
 }
