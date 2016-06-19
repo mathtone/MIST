@@ -58,11 +58,11 @@ namespace Mathtone.MIST.Tests {
 		#region Check for ImplementationSummaryAttribute
 
 		[TestMethod]
-		public void Implementation_Summary_Attribute() {
+		public void Misted_Assembly_Attribute() {
 			//Assembly.GetAssembly()
 			var assembly = Assembly.LoadFile(TestNotifierPath);
 			var attribute = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(MistedAssemblyAttribute));
-			Assert.IsNotNull(attribute, "ImplementationSummaryAttribute Not found");
+			Assert.IsNotNull(attribute, "MistedAssemblyAttribute Not found");
 		}
 		#endregion
 
