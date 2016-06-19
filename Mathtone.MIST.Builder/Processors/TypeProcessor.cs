@@ -6,10 +6,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Mathtone.MIST.Processors {
+
+	/// <summary>
+	/// Performs MIST notificationprocessing for types.
+	/// </summary>
 	public class TypeProcessor {
 		MetadataResolver metadataResolver;
 		public bool ContainsChanges { get; protected set; }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="TypeProcessor"/> class.
+		/// </summary>
+		/// <param name="metadataResolver">The metadata resolver.</param>
 		public TypeProcessor(MetadataResolver metadataResolver) {
 			this.metadataResolver = metadataResolver;
 		}
@@ -23,11 +31,11 @@ namespace Mathtone.MIST.Processors {
 		public void Process(TypeDefinition typeDef) {
 
 			var notifierAttr = typeDef.GetAttribute(typeof(NotifierAttribute));
-			var summaryAttr = typeDef.GetAttribute(typeof(ImplementationSummaryAttribute));
 
-			if (summaryAttr == null && notifierAttr != null) {
+			if (notifierAttr != null) {
 
-				typeDef.CustomAttributes.Remove(notifierAttr); //Make sure we only ever MIST a property ONCE (mostly useful for unit tests)
+				//Make sure we only ever MIST a property ONCE (mostly useful for unit tests)
+				//typeDef.CustomAttributes.Remove(notifierAttr);
 
 				//Use explicit mode if not otherwise specified
 				var mode = NotificationMode.Explicit;

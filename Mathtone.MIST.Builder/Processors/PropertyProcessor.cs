@@ -17,6 +17,7 @@ namespace Mathtone.MIST.Processors {
 		MethodReference notifyTarget;
 
 		static MethodInfo defaultEqualsMethod = typeof(object).GetMethods().FirstOrDefault(a => a.Name == "Equals" && a.IsStatic);
+
 		public bool ContainsChanges { get; protected set; }
 
 		public PropertyProcessor(MethodReference target, NotificationMode mode, NotificationStyle style) {
@@ -103,29 +104,22 @@ namespace Mathtone.MIST.Processors {
 			foreach (var v in sourceMethod.Body.Variables) {
 				rtn.Body.Variables.Add(v);
 			}
-			//foreach (var i in sourceMethod.Body.Instructions) {
+
 			instructions.AddRange(sourceMethod.Body.Instructions);
 			foreach (var instruction in instructions) {
 				rtn.Body.Instructions.Add(instruction);
 			}
-			//}
-			//read from source,
-			//write to target
 
 			return rtn;
 		}
+
 		static void ImplementWrapped(ImplementationStrategy strategy) {
 
 			var setMethod = strategy.Property.SetMethod;
-			//var newMethod = new MethodDefinition(setMethod.Name, setMethod.Attributes, setMethod.ReturnType);
-			//$"{setMethod.Name}`mist"
-			//var newMethod = new MethodDefinition(setMethod.Name, setMethod.Attributes, setMethod.ReturnType);
 			var newMethod = DuplicateMethod(setMethod, $"{setMethod.Name}`mist");
 			var msil = setMethod.Body.GetILProcessor();
 			var instructions = new List<Instruction>();
 			var rtn = msil.Create(OpCodes.Ret);
-			//newMethod.DeclaringType = setMethod.DeclaringType;
-			//newMethod.Parameters.Add(new ParameterDefinition(setMethod.Parameters[0].ParameterType));
 
 			if (strategy.NotificationStyle == NotificationStyle.OnChange) {
 
@@ -140,8 +134,6 @@ namespace Mathtone.MIST.Processors {
 				setMethod.Body.Variables.Add(v2);
 				instructions.Add(msil.Create(OpCodes.Nop));
 
-				//This is what's happening here
-				//https://sriramsakthivel.wordpress.com/2015/03/07/c-compiler-doesnt-always-emits-a-virtual-call-callvirt/
 				if (propertyType.IsValueType) {
 					instructions.AddRange(
 						new[] {
@@ -156,7 +148,6 @@ namespace Mathtone.MIST.Processors {
 							msil.Create(OpCodes.Ldarg_1),
 							msil.Create(OpCodes.Box,v1.VariableType),
 							msil.Create(OpCodes.Call,equality),
-							//msil.Create(equalityReference.IsVirtual?OpCodes.Callvirt:OpCodes.Call,equality),
 							msil.Create(OpCodes.Ldc_I4_0),
 							msil.Create(OpCodes.Ceq),
 							msil.Create(OpCodes.Stloc_1),
@@ -164,7 +155,6 @@ namespace Mathtone.MIST.Processors {
 							msil.Create(OpCodes.Brfalse_S,rtn),
 						}
 					);
-					//);
 				}
 				else {
 					instructions.AddRange(
@@ -178,7 +168,6 @@ namespace Mathtone.MIST.Processors {
 							msil.Create(OpCodes.Ldloc_0),
 							msil.Create(OpCodes.Ldarg_1),
 							msil.Create(OpCodes.Call,equality),
-							//msil.Create(equalityReference.IsVirtual?OpCodes.Callvirt:OpCodes.Call,equality),
 							msil.Create(OpCodes.Ldc_I4_0),
 							msil.Create(OpCodes.Ceq),
 							msil.Create(OpCodes.Stloc_1),

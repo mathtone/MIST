@@ -22,16 +22,16 @@ namespace Mathtone.MIST.Tests {
 
 		static bool initialized;
 
-		static string ApplicationPath {
-			get {
-				return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-			}
-		}
+		static string ApplicationPath =>
+				Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+		static string TestNotifierPath =>
+			ApplicationPath + "\\Mathtone.MIST.TestNotifier.dll";
 
 		[TestInitialize]
 		public void InitializeTest() {
 			if (!initialized) {
-				var weaver = new NotificationWeaver(ApplicationPath + "\\Mathtone.MIST.TestNotifier.dll");
+				var weaver = new NotificationWeaver(TestNotifierPath);
 				weaver.InsertNotifications(true);
 				initialized = true;
 			}
@@ -39,9 +39,8 @@ namespace Mathtone.MIST.Tests {
 			this.assemblyResolver = new DefaultAssemblyResolver();
 			this.assemblyResolver.AddSearchDirectory(ApplicationPath);
 			this.metadataResolver = new MetadataResolver(assemblyResolver);
-
-
 		}
+
 		void InitializeStandardAssembly() {
 			var assemblyDef = null as AssemblyDefinition;
 			var assembly = typeof(TestNotifier.Patterns.OnChange_Manually).Module.Assembly;
@@ -55,6 +54,17 @@ namespace Mathtone.MIST.Tests {
 		}
 
 		#endregion Tests Setup
+
+		#region Check for ImplementationSummaryAttribute
+
+		[TestMethod]
+		public void Implementation_Summary_Attribute() {
+			//Assembly.GetAssembly()
+			var assembly = Assembly.LoadFile(TestNotifierPath);
+			var attribute = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(MistedAssemblyAttribute));
+			Assert.IsNotNull(attribute, "ImplementationSummaryAttribute Not found");
+		}
+		#endregion
 
 		#region Support for all types of parameter types
 

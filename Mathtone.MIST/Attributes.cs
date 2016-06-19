@@ -2,13 +2,13 @@
 
 namespace Mathtone.MIST {
 
-	public class ImplementationSummaryAttribute : Attribute {
+	/// <summary>
+	/// Used by the build process to mark assemblies that have undergone processing.  This attribute should NOT be implemented by the user.
+	/// </summary>
+	/// <seealso cref="System.Attribute" />
+	[AttributeUsage(AttributeTargets.Assembly)]
+	public class MistedAssemblyAttribute : Attribute {
 
-		public DateTimeOffset ImplementationTime { get; private set; }
-
-		public ImplementationSummaryAttribute(DateTimeOffset implementationTime) {
-			this.ImplementationTime = implementationTime;
-		}
 	}
 
 	/// <summary>

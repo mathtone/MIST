@@ -99,6 +99,10 @@
       <Project>{d367664d-44ff-4fa9-bca0-b40a5a4c4577}</Project>
       <Name>Mathtone.MIST.Builder</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Mathtone.MIST\Mathtone.MIST.csproj">
+      <Project>{a0625d95-3d4b-449d-8b13-a806c5f17ca7}</Project>
+      <Name>Mathtone.MIST</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Mathtone.MIST.Tests.NotifierBase\Mathtone.MIST.Tests.NotifierBase.csproj">
       <Project>{2b849608-bb74-456b-89c2-16abaa185718}</Project>
       <Name>Mathtone.MIST.Tests.NotifierBase</Name>

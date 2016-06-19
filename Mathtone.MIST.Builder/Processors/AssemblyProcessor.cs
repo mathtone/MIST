@@ -17,11 +17,33 @@ namespace Mathtone.MIST.Processors {
 		}
 
 		public void Process(AssemblyDefinition definition) {
+			var attr = GetAttribute(definition, typeof(MistedAssemblyAttribute));
+			if (attr != null) {
+				return;
+			}
+
 			var moduleProcessor = new ModuleProcessor(metadataResolver);
+
 			foreach (var moduleDef in definition.Modules) {
 				moduleProcessor.Process(moduleDef);
 			}
+
 			this.ContainsChanges = moduleProcessor.ContainsChanges;
+
+			if (this.ContainsChanges) {
+				AddImplementationSummary(definition);
+			}
 		}
+
+		void AddImplementationSummary(AssemblyDefinition assemblyDefinition) {
+			var reference = assemblyDefinition.MainModule.ImportReference(typeof(MistedAssemblyAttribute));
+			var definition = reference.Resolve();
+			var constructor = definition.Methods.FirstOrDefault(a => a.IsConstructor);
+			var attribute = new CustomAttribute(assemblyDefinition.MainModule.ImportReference(constructor));
+			assemblyDefinition.CustomAttributes.Add(attribute);
+		}
+
+		public CustomAttribute GetAttribute(AssemblyDefinition definition, Type attributeType) =>
+			definition.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == attributeType.FullName);
 	}
 }
