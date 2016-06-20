@@ -1,6 +1,5 @@
 ﻿using Mathtone.MIST.Processors;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;

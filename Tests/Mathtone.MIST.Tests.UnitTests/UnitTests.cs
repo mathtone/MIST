@@ -61,7 +61,7 @@ namespace Mathtone.MIST.Tests {
 		public void Misted_Assembly_Attribute() {
 			//Assembly.GetAssembly()
 			var assembly = Assembly.LoadFile(TestNotifierPath);
-			var attribute = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(MistedAssemblyAttribute));
+			var attribute = assembly.GetCustomAttributes(typeof(MistedAssemblyAttribute),false).SingleOrDefault();
 			Assert.IsNotNull(attribute, "MistedAssemblyAttribute Not found");
 		}
 		#endregion
