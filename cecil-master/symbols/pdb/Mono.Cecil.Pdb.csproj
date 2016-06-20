@@ -5,7 +5,7 @@
     <RootNamespace>Mono.Cecil.Pdb</RootNamespace>
     <AssemblyName>Mono.Cecil.Pdb</AssemblyName>
     <NoWarn>0649</NoWarn>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'net_4_6_debug'">

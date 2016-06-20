@@ -61,7 +61,7 @@ namespace Mathtone.MIST.Tests {
 		public void Misted_Assembly_Attribute() {
 			//Assembly.GetAssembly()
 			var assembly = Assembly.LoadFile(TestNotifierPath);
-			var attribute = assembly.GetCustomAttributes(typeof(MistedAssemblyAttribute),false).SingleOrDefault();
+			var attribute = assembly.GetCustomAttributes(typeof(MistedAssemblyAttribute), false).SingleOrDefault();
 			Assert.IsNotNull(attribute, "MistedAssemblyAttribute Not found");
 		}
 		#endregion
@@ -208,9 +208,9 @@ namespace Mathtone.MIST.Tests {
 		[TestMethod]
 		public void OnSet_for_New_ReferenceTypes() {
 			var notifier = new ExplicitValueTypeNotifier_Specialized();
-            var expectedObject = new object();
-            notifier.OnSetVirtualObject = expectedObject;
-            Assert.AreEqual(expectedObject, notifier.OnSetVirtualObject);
+			var expectedObject = new object();
+			notifier.OnSetVirtualObject = expectedObject;
+			Assert.AreEqual(expectedObject, notifier.OnSetVirtualObject);
 			notifier.OnSetVirtualObject = expectedObject;
 			Assert.AreEqual(2, notifier.ChangeCount);
 		}
@@ -220,9 +220,9 @@ namespace Mathtone.MIST.Tests {
 			var notifier = new ExplicitValueTypeNotifier_Specialized();
 			var expectedObject = new object();
 			notifier.OnChangeVirtualObject = expectedObject;
-            Assert.AreEqual(expectedObject, notifier.OnChangeVirtualObject);
-            notifier.OnChangeVirtualObject = expectedObject;
-            Assert.AreEqual(1, notifier.ChangeCount);
+			Assert.AreEqual(expectedObject, notifier.OnChangeVirtualObject);
+			notifier.OnChangeVirtualObject = expectedObject;
+			Assert.AreEqual(1, notifier.ChangeCount);
 		}
 
 		#endregion Class inheritance

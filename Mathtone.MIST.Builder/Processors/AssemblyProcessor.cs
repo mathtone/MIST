@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-
 namespace Mathtone.MIST.Processors {
 
 	public class AssemblyProcessor : IDefinitionProcessor<AssemblyDefinition> {
@@ -17,8 +16,7 @@ namespace Mathtone.MIST.Processors {
 		}
 
 		public void Process(AssemblyDefinition definition) {
-			var attr = GetAttribute(definition, typeof(MistedAssemblyAttribute));
-			if (attr != null) {
+			if (IsMisted(definition)) {
 				return;
 			}
 
@@ -41,6 +39,11 @@ namespace Mathtone.MIST.Processors {
 			var constructor = definition.Methods.FirstOrDefault(a => a.IsConstructor);
 			var attribute = new CustomAttribute(assemblyDefinition.MainModule.ImportReference(constructor));
 			assemblyDefinition.CustomAttributes.Add(attribute);
+		}
+
+		protected bool IsMisted(AssemblyDefinition definition) {
+			var attr = GetAttribute(definition, typeof(MistedAssemblyAttribute));
+			return (attr != null);
 		}
 
 		public CustomAttribute GetAttribute(AssemblyDefinition definition, Type attributeType) =>

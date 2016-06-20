@@ -7,6 +7,10 @@ using System.Text;
 
 
 namespace Mathtone.MIST.Processors {
+	/// <summary>
+	/// Encapsulates details describing the method by which notification will be implemented.
+	/// </summary>
+	/// <seealso cref="Mathtone.MIST.Processors.ImplementationStrategy" />
 	class PropertyStrategy : ImplementationStrategy {
 
 		static OpCode[] simpleInstructions = new[] {
@@ -16,6 +20,13 @@ namespace Mathtone.MIST.Processors {
 			OpCodes.Ret
 		};
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="PropertyStrategy"/> class.
+		/// </summary>
+		/// <param name="definition">The property definition.</param>
+		/// <param name="mode">Explicit/implicit mode.</param>
+		/// <param name="defaultStyle">The notification style that will be used if none is specified.</param>
+		/// <param name="target">Notificaiton target method.</param>
 		public PropertyStrategy(PropertyDefinition definition, NotificationMode mode,
 			NotificationStyle defaultStyle, MethodReference target) {
 

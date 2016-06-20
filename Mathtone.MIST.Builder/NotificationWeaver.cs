@@ -32,7 +32,6 @@ namespace Mathtone.MIST {
 			this.resolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
 			this.mdResolver = new MetadataResolver(resolver);
 
-
 		}
 
 		/// <summary>
