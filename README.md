@@ -67,6 +67,7 @@ Here is an example:
             }
     	}
     }
+```
 
 The notify target method can be implemented in a base class.  One thing I would mention is that when using implicit notification,
 I would recommend suppressing notification for properties you have implemented.  
