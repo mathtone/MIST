@@ -5,7 +5,7 @@ This is how it works:
 
 **The NuGet package now covers .NET framework versions 4.0-4.7.**
 
-1. Create a WPF project in visual studio, Target any framework 4.0 - 4.6.2 (if there's any favorable response I'll set up other frameworks in the NuGet package, what I've done should mostly work for all of them)
+1. Create a WPF project in visual studio, Target any framework 4.0 - 4.7 (if there's any favorable response I'll set up other frameworks in the NuGet package, what I've done should mostly work for all of them)
 2. In the package manager type the NuGet command: `install-package Mathtone.MIST`. Visual Studio will prompt you to reload the project.
 3. This should set everything up, adding a reference to the Mathtone.MIST assembly (which only contains the attribute classes you will use to decorate your code), copying the Mathtone.MIST.Builder and Mono.Cecil (this is the framework that does the actual weaving of IL operations, a fine piece of work) assemblies to the NuGet package "tools" folder.  Additionally, it executes a nonthreatening script that modifies your project file and adds the post build task.
 
