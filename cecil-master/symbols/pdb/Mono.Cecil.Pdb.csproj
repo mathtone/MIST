@@ -51,6 +51,26 @@
   <PropertyGroup Condition="'$(Configuration)' == 'net_4_5_Release'">
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'net_4_7_debug'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\net_4_7_debug\</OutputPath>
+    <DefineConstants>;DEBUG;TRACE;;NET_3_5;NET_4_0;NET_4_5;</DefineConstants>
+    <NoWarn>0649</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'net_4_7_release'">
+    <OutputPath>bin\net_4_7_release\</OutputPath>
+    <DefineConstants>;TRACE;;NET_3_5;NET_4_0;NET_4_5;</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>0649</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\ProjectInfo.cs" />
     <Compile Include="Microsoft.Cci.Pdb\BitAccess.cs" />

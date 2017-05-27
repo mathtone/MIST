@@ -27,6 +27,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'net_4_7_debug' ">
+    <OutputPath>bin\net_4_7_debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'net_4_7_release' ">
+    <OutputPath>bin\net_4_7_release\</OutputPath>
+  </PropertyGroup>
   <ItemGroup />
   <ItemGroup>
     <Compile Include="Install.ps1" />
