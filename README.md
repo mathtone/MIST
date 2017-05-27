@@ -3,7 +3,7 @@ Implements change notification for properties (ie: INotifyPropertyChanged) using
 
 This is how it works:
 
-**The NuGet package now covers .NET framework versions 4.0-4.6+.**
+**The NuGet package now covers .NET framework versions 4.0-4.7.**
 
 1. Create a WPF project in visual studio, Target any framework 4.0 - 4.6.2 (if there's any favorable response I'll set up other frameworks in the NuGet package, what I've done should mostly work for all of them)
 2. In the package manager type the NuGet command: `install-package Mathtone.MIST`. Visual Studio will prompt you to reload the project.
