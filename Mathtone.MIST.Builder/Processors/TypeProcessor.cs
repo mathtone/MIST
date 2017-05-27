@@ -44,7 +44,7 @@ namespace Mathtone.MIST.Processors {
 					throw new CannotLocateNotifyTargetException(typeDef.FullName);
 				}
 
-				//Determine whether to use explicit/implicit notifier identification.
+				//Determine whether to use explicit/implicit notifier identification.  Using the assembly fullname may be risky.
 				if (notifierAttr.HasConstructorArguments) {
 					mode = (NotificationMode)notifierAttr.ConstructorArguments.FirstOrDefault(a => a.Type.FullName == typeof(NotificationMode).FullName).Value;
 					style = (NotificationStyle)notifierAttr.ConstructorArguments.FirstOrDefault(a => a.Type.FullName == typeof(NotificationStyle).FullName).Value;
@@ -76,12 +76,15 @@ namespace Mathtone.MIST.Processors {
 				if (methDef.ContainsAttribute(typeof(NotifyTarget))) {
 					var isValid = false;
 					switch (methDef.Parameters.Count) {
+						//Passes nothing
 						case 0:
 							isValid = true;
 							break;
+						//Passes property name
 						case 1:
 							isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName;
 							break;
+						//Passes property name & value being set
 						case 2:
 							isValid = methDef.Parameters[0].ParameterType.FullName == typeof(string).FullName &&
 								methDef.Parameters[1].ParameterType.FullName == typeof(object).FullName;

@@ -31,7 +31,6 @@ namespace Mathtone.MIST {
 			this.resolver.AddSearchDirectory(ApplicationPath);
 			this.resolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
 			this.mdResolver = new MetadataResolver(resolver);
-
 		}
 
 		/// <summary>
@@ -56,7 +55,6 @@ namespace Mathtone.MIST {
 			if (assemblyProcessor.ContainsChanges) {
 				using (var stream = File.OpenWrite(assemblyPath)) {
 					assemblyDef.Write(stream, writeParameters);
-					stream.Flush();
 				}
 			}
 		}

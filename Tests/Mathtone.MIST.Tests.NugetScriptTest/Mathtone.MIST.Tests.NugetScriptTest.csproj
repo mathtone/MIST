@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Mathtone.MIST.Tests.NugetScriptTest</RootNamespace>
     <AssemblyName>Mathtone.MIST.Tests.NugetScriptTest</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -73,6 +73,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'net_4_7_release|AnyCPU'">
     <OutputPath>bin\net_4_7_release\</OutputPath>
@@ -82,11 +83,11 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mathtone.MIST, Version=2.0.6004.34575, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Mathtone.MIST.2.0.0\lib\net46\Mathtone.MIST.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Mathtone.MIST, Version=2.5.6355.41647, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Mathtone.MIST.2.5.2\lib\net47\Mathtone.MIST.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -106,7 +107,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <UsingTask TaskName="Mathtone.MIST.NotificationWeaverBuildTask" AssemblyFile="..\..\packages\Mathtone.MIST.2.0.0\tools\net46\Mathtone.MIST.Builder.dll" />
+  <UsingTask TaskName="Mathtone.MIST.NotificationWeaverBuildTask" AssemblyFile="..\..\packages\Mathtone.MIST.2.5.2\tools\net47\Mathtone.MIST.Builder.dll" />
   <Target Name="AfterBuild">
     <NotificationWeaverBuildTask TargetPath="$(TargetPath)" DebugMode="True" />
   </Target>
