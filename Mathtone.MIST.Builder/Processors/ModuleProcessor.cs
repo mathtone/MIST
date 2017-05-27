@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-
 namespace Mathtone.MIST.Processors {
 
 	public class ModuleProcessor : IDefinitionProcessor<ModuleDefinition> {

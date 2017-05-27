@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-
 namespace Mathtone.MIST.Processors {
 	/// <summary>
 	/// Encapsulates details describing the method by which notification will be implemented.
