@@ -44,19 +44,38 @@ namespace Mathtone.MIST {
 			var writeParameters = new WriterParameters { WriteSymbols = debug };
 			var assemblyProcessor = new AssemblyProcessor(mdResolver);
 
-			//Load the assembly.
-			using (var stream = File.OpenRead(assemblyPath)) {
-				assemblyDef = AssemblyDefinition.ReadAssembly(stream, readParameters);
-			}
+            var tempPath = Path.GetTempPath();
+            var assemblyReadPath = Path.Combine(tempPath, Path.GetFileName(assemblyPath));
+            var assemblyPdbPath = assemblyPath.Substring(0, assemblyPath.Length - 3) + "pdb";
+            var assemblyPdbReadPath = Path.Combine(tempPath, Path.GetFileName(assemblyPdbPath));
 
-			assemblyProcessor.Process(assemblyDef);
+            File.Copy(assemblyPath, assemblyReadPath, true);
+            File.Copy(assemblyPdbPath, assemblyPdbReadPath, true);
 
-			//If the assembly has been altered then rewrite it.
-			if (assemblyProcessor.ContainsChanges) {
-				using (var stream = File.OpenWrite(assemblyPath)) {
-					assemblyDef.Write(stream, writeParameters);
-				}
-			}
-		}
+            try
+            {
+                //Load the assembly.
+                using (var stream = File.OpenRead(assemblyReadPath))
+                {
+                    assemblyDef = AssemblyDefinition.ReadAssembly(stream, readParameters);
+
+                    assemblyProcessor.Process(assemblyDef);
+
+                    //If the assembly has been altered then rewrite it.
+                    if (assemblyProcessor.ContainsChanges)
+                    {
+                        using (var outputStream = File.OpenWrite(assemblyPath))
+                        {
+                            assemblyDef.Write(outputStream, writeParameters);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                File.Delete(assemblyReadPath);
+                File.Delete(assemblyPdbReadPath);
+            }
+        }
 	}
 }
