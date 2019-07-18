@@ -37,26 +37,61 @@ namespace Mathtone.MIST {
 		/// Weaves the notification mechanism into the assembly
 		/// </summary>
 		/// <param name="debug">if set to <c>true</c> [debug].</param>
-		public void InsertNotifications(bool debug = false) {
+		public void InsertNotifications(bool debug = false)
+        {
+            var pdbPath = FindPdbPathFor(assemblyPath);
+            if (!File.Exists(pdbPath))
+                throw new FileNotFoundException($"Assembly pdb file not found at '{pdbPath}'");
 
-			var assemblyDef = null as AssemblyDefinition;
-			var readParameters = new ReaderParameters { ReadSymbols = debug, AssemblyResolver = resolver };
-			var writeParameters = new WriterParameters { WriteSymbols = debug };
-			var assemblyProcessor = new AssemblyProcessor(mdResolver);
+            var assemblyReadPath = CopyToTempFolder(assemblyPath, true);
+            var pdbReadPath = CopyToTempFolder(pdbPath, true);
+            try
+            {
+                InsertNotifications(assemblyReadPath, debug);
+            }
+            finally
+            {
+                File.Delete(assemblyReadPath);
+                File.Delete(pdbReadPath);
+            }
+        }
 
-			//Load the assembly.
-			using (var stream = File.OpenRead(assemblyPath)) {
-				assemblyDef = AssemblyDefinition.ReadAssembly(stream, readParameters);
-			}
+        private void InsertNotifications(string assemblyReadPath, bool debug)
+        {
+            var readParameters = new ReaderParameters { ReadSymbols = debug, AssemblyResolver = resolver };
+            var writeParameters = new WriterParameters { WriteSymbols = debug };
+            var assemblyProcessor = new AssemblyProcessor(mdResolver);
 
-			assemblyProcessor.Process(assemblyDef);
+            //Load the assembly.
+            using (var stream = File.OpenRead(assemblyReadPath))
+            {
+                var assemblyDef = AssemblyDefinition.ReadAssembly(stream, readParameters);
 
-			//If the assembly has been altered then rewrite it.
-			if (assemblyProcessor.ContainsChanges) {
-				using (var stream = File.OpenWrite(assemblyPath)) {
-					assemblyDef.Write(stream, writeParameters);
-				}
-			}
-		}
-	}
+                assemblyProcessor.Process(assemblyDef);
+
+                //If the assembly has been altered then rewrite it.
+                if (assemblyProcessor.ContainsChanges)
+                {
+                    using (var outputStream = File.OpenWrite(assemblyPath))
+                    {
+                        assemblyDef.Write(outputStream, writeParameters);
+                    }
+                }
+            }
+        }
+
+        private static string FindPdbPathFor(string assemblyPath)
+        {
+            return Path.GetFileNameWithoutExtension(assemblyPath) + ".pdb";
+        }
+
+        private static string CopyToTempFolder(string path, bool overwrite = false)
+        {
+            var tempPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(path));
+
+            File.Copy(path, tempPath, overwrite);
+
+            return tempPath;
+        }
+    }
 }
