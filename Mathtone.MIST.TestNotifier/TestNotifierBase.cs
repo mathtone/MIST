@@ -10,18 +10,18 @@ namespace Mathtone.MIST.TestNotifier {
 		public int ChangeCount => Changes.Count;
 		public List<string> Changes { get; } = new List<string>();
 
-        [Notify]
-        public int OnSetBaseInt { get; set; }
+		[Notify]
+		public int OnSetBaseInt { get; set; }
 
-        [Notify(NotificationStyle.OnChange)]
-        public int OnChangeBaseInt { get; set; }
+		[Notify(NotificationStyle.OnChange)]
+		public int OnChangeBaseInt { get; set; }
 
-        public virtual int OnSetVirtualInt { get; set; }
-        public virtual int OnChangeVirtualInt { get; set; }
-        public virtual object OnSetVirtualObject { get; set; }
-        public virtual object OnChangeVirtualObject { get; set; }
+		public virtual int OnSetVirtualInt { get; set; }
+		public virtual int OnChangeVirtualInt { get; set; }
+		public virtual object OnSetVirtualObject { get; set; }
+		public virtual object OnChangeVirtualObject { get; set; }
 
-        [NotifyTarget]
+		[NotifyTarget]
 		protected void OnPropertyChanged(string propertyName) {
 			Changes.Add(propertyName);
 		}

@@ -10,18 +10,21 @@ namespace Mathtone.MIST {
 			base($"{Resources.CannotLocateNotifyTarget}: {typeName}") {
 		}
 	}
+
 	[Serializable]
 	public class InvalidNotifyTargetException : Exception {
 		public InvalidNotifyTargetException(string methodName) :
 			base(String.Format(Resources.InvalidNotifyTarget, methodName)) {
 		}
 	}
+
 	[Serializable]
 	public class InvalidNotifierException : Exception {
 		public InvalidNotifierException() :
 			base(Resources.NotifyAttributeCannotBeSet) {
 		}
 	}
+
 	[Serializable]
 	public class BuildTaskErrorException : Exception {
 		public BuildTaskErrorException(string typeName, Exception innerException = null) :

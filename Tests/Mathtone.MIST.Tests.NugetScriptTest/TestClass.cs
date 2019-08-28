@@ -25,7 +25,7 @@ namespace Mathtone.MIST.Tests.NugetScriptTest {
 				testClass.TestString = "1";
 				testClass.TestInt = 1;
 			}
-			catch(Exception) {
+			catch (Exception) {
 				;
 			}
 		}

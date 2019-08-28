@@ -1,6 +1,7 @@
 ﻿using System;
 
 namespace Mathtone.MIST {
+
 	/// <summary>
 	/// Used to mark a class for automatic notification implementation;
 	/// </summary>

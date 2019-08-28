@@ -7,8 +7,7 @@ using System.Text;
 namespace Mathtone.MIST.TestNotifier.Cases {
 
 	[Notifier(NotificationMode.Implicit, NotificationStyle.OnChange)]
-	public class ImplicitOnChangeSpy : TestNotifierBase
-	{
+	public class ImplicitOnChangeSpy : TestNotifierBase {
 		public string StringValue { get; set; } = "";
 
 		[Notify(NotificationStyle.OnSet)]

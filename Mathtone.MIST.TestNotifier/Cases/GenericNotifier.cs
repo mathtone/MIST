@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Mathtone.MIST.TestNotifier.Cases
-{
+namespace Mathtone.MIST.TestNotifier.Cases {
 	[Notifier]
-	public abstract class GenericNotifierBase<T>
-	{
+	public abstract class GenericNotifierBase<T> {
 		public T Value { get; set; }
 		public List<string> Changes { get; } = new List<string>();
 
@@ -14,8 +12,7 @@ namespace Mathtone.MIST.TestNotifier.Cases
 		}
 	}
 
-	public class GenericNotifierDerived : GenericNotifierBase<int>
-	{
+	public class GenericNotifierDerived : GenericNotifierBase<int> {
 		public GenericNotifierDerived() {
 			this.Value = 1;
 		}

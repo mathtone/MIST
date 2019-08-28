@@ -15,7 +15,7 @@ namespace Mathtone.MIST.Processors {
 		}
 
 		public void Process(ModuleDefinition definition) {
-            var processor = new TypeProcessor(metadataResolver);
+			var processor = new TypeProcessor(metadataResolver);
 			foreach (var typeDef in definition.Types) {
 				try {
 					processor.Process(typeDef);

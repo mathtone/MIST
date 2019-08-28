@@ -16,7 +16,7 @@ namespace Mathtone.MIST.Tests.Canon {
 	[Category("Legacy")]
 	public class UnitTests {
 
-		#region Tests Setup
+		#region Tests Setup 
 
 		DefaultAssemblyResolver assemblyResolver;
 		MetadataResolver metadataResolver;
