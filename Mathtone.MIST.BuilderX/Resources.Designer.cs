@@ -19,7 +19,7 @@ namespace Mathtone.MIST {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -79,20 +79,11 @@ namespace Mathtone.MIST {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Inline implementation does not support OnChange notification.
+        ///   Looks up a localized string similar to Cannot locate notify target for type.
         /// </summary>
         internal static string CannotLocateNotifyTarget {
             get {
                 return ResourceManager.GetString("CannotLocateNotifyTarget", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Inline implementation does not support OnChange notification.
-        /// </summary>
-        internal static string InlineDoesNotSupportOnChange {
-            get {
-                return ResourceManager.GetString("InlineDoesNotSupportOnChange", resourceCulture);
             }
         }
         
@@ -111,15 +102,6 @@ namespace Mathtone.MIST {
         internal static string NotifyAttributeCannotBeSet {
             get {
                 return ResourceManager.GetString("NotifyAttributeCannotBeSet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Errors encountered processing preoperty: {0}.
-        /// </summary>
-        internal static string PropertyImplementationError {
-            get {
-                return ResourceManager.GetString("PropertyImplementationError", resourceCulture);
             }
         }
     }

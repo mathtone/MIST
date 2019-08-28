@@ -7,11 +7,11 @@ using System.Text;
 
 namespace Mathtone.MIST.Processors {
 
-	public enum ImplementationStyle {
+	enum ImplementationStyle {
 		Inline, Wrapped
 	}
 
-	public class ImplementationStrategy {
+	class ImplementationStrategy {
 		public bool IsIgnored { get; set; }
 		public NotificationStyle NotificationStyle { get; set; }
 		public ImplementationStyle ImplementationStyle { get; set; }

@@ -1,16 +1,17 @@
-﻿using Mathtone.MIST.TestNotifier;
-using Mathtone.MIST.TestNotifier.Cases;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Mono.Cecil;
-using System;
+﻿// NUnit 3 tests
+// See documentation : https://github.com/nunit/docs/wiki/NUnit-Documentation
+using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using static System.Console;
+using Mathtone.MIST.Processors;
+using Mathtone.MIST.TestNotifier.Cases;
+using Mathtone.MIST.TestNotifier.Patterns;
+using Mono.Cecil;
+using NUnit.Framework;
 
-namespace Mathtone.MIST.Tests {
+namespace Mathtone.MIST.Tests.Canon {
 	[TestFixture]
 	[Category("Legacy")]
 	public class UnitTests {
@@ -27,8 +28,7 @@ namespace Mathtone.MIST.Tests {
 				Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
 		static string TestNotifierPath =>
-			ApplicationPath + @"\Mist.Tests.Legacy.TestNotifier.dll";
-
+			ApplicationPath + @"\Mathtone.Mist.TestNotifier.dll";
 		public UnitTests() {
 
 			this.assemblyResolver = new DefaultAssemblyResolver();
@@ -379,8 +379,8 @@ namespace Mathtone.MIST.Tests {
 		[Test]
 		[Category("Coverage")]
 		public void Cover_Types() {
-			Coverage.CoverInstance(new NotifyAttribute(NotificationStyle.OnSet, ""));
-			Coverage.CoverInstance(new NotifierAttribute(NotificationMode.Explicit, NotificationStyle.OnSet));
+			//Coverage.CoverInstance(new NotifyAttribute(NotificationStyle.OnSet, ""));
+			//Coverage.CoverInstance(new NotifierAttribute(NotificationMode.Explicit, NotificationStyle.OnSet));
 			//Coverage.CoverInstance()
 		}
 		#endregion

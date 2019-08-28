@@ -6,15 +6,13 @@ using System.Linq;
 using System.Text;
 
 namespace Mathtone.MIST.Processors {
-
+	/// <summary>
 	/// Encapsulates details describing the method by which notification will be implemented.
 	/// </summary>
 	/// <seealso cref="Mathtone.MIST.Processors.ImplementationStrategy" />
-	public class PropertyStrategy : ImplementationStrategy {
+	class PropertyStrategy : ImplementationStrategy {
 
-		public string[] GroupNames { get; set; }
-
-		static readonly OpCode[] simpleInstructions = new[] {
+		static OpCode[] simpleInstructions = new[] {
 			OpCodes.Ldarg_0,
 			OpCodes.Ldarg_1,
 			OpCodes.Stfld,
@@ -28,10 +26,10 @@ namespace Mathtone.MIST.Processors {
 		/// <param name="mode">Explicit/implicit mode.</param>
 		/// <param name="defaultStyle">The notification style that will be used if none is specified.</param>
 		/// <param name="target">Notificaiton target method.</param>
-		public PropertyStrategy(PropertyDefinition definition, NotificationMode mode, NotificationStyle defaultStyle, MethodReference target) {
+		public PropertyStrategy(PropertyDefinition definition, NotificationMode mode,
+			NotificationStyle defaultStyle, MethodReference target) {
 
 			this.Property = definition;
-			//this.GroupNames = GetNotifyGroupNames(definition).ToArray();
 			this.NotifyValues = GetNotifyPropertyNames(definition, mode).ToArray();
 			this.IsIgnored = !NotifyValues.Any() || Property.SetMethod == null;
 
@@ -64,9 +62,7 @@ namespace Mathtone.MIST.Processors {
 
 					//Return property names supplied by the constructor, if none are specified return the property name itself.
 					if (notify.HasConstructorArguments) {
-						var args = notify.ConstructorArguments
-							.FirstOrDefault(a => a.Type.FullName == typeof(string[]).FullName)
-							.Value as CustomAttributeArgument[];
+						var args = notify.ConstructorArguments.FirstOrDefault(a => a.Type.FullName == typeof(string[]).FullName).Value as CustomAttributeArgument[];
 
 						if (args == null) {
 							yield return null;
@@ -83,36 +79,6 @@ namespace Mathtone.MIST.Processors {
 				}
 			}
 		}
-
-		/// <summary>
-		/// Gets the names of all noticficattion group of which this class is a member.
-		/// </summary>
-		/// <param name="property">The property definition.</param>
-		/// <returns>IEnumerable&lt;System.String&gt;.</returns>
-		//static IEnumerable<string> GetNotifyGroupNames(PropertyDefinition property) {
-
-		//	var group = property.GetAttribute(typeof(GroupMemberAttribute));
-
-
-		//	if (group != null) {
-
-		//		//Return property names supplied by the constructor, if none are specified return the property name itself.
-		//		if (group.HasConstructorArguments) {
-		//			var args = group.ConstructorArguments
-		//				.FirstOrDefault(a => a.Type.FullName == typeof(string[]).FullName)
-		//				.Value as CustomAttributeArgument[];
-
-		//			if (args == null) {
-		//				yield return null;
-		//			}
-		//			else {
-		//				foreach (var arg in args) {
-		//					yield return (string)arg.Value;
-		//				}
-		//			}
-		//		}
-		//	}
-		//}
 
 		/// <summary>
 		/// Gets the notification style for the supplied property.
@@ -150,5 +116,4 @@ namespace Mathtone.MIST.Processors {
 			!property.SetMethod.Body.Instructions.Select(a => a.OpCode)
 				.SequenceEqual(simpleInstructions);
 	}
-
 }

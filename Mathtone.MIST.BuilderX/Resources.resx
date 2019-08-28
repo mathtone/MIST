@@ -124,18 +124,12 @@
     <value>Lightly misting {0}</value>
   </data>
   <data name="CannotLocateNotifyTarget" xml:space="preserve">
-    <value>Inline implementation does not support OnChange notification</value>
-  </data>
-  <data name="InlineDoesNotSupportOnChange" xml:space="preserve">
-    <value>Inline implementation does not support OnChange notification</value>
+    <value>Cannot locate notify target for type</value>
   </data>
   <data name="InvalidNotifyTarget" xml:space="preserve">
     <value>Notify target {0} is not an Action&lt;string&gt;</value>
   </data>
   <data name="NotifyAttributeCannotBeSet" xml:space="preserve">
     <value>NotifyAttribute cannot be set on abstract properties</value>
-  </data>
-  <data name="PropertyImplementationError" xml:space="preserve">
-    <value>Errors encountered processing preoperty: {0}</value>
   </data>
 </root>
