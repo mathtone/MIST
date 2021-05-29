@@ -1,4 +1,5 @@
 ﻿using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Mathtone.MIST {
 	///		<NotificationWeaverBuildTask TargetPath="$(TargetPath)" DebugMode="True"/>
 	/// </Target>
 	/// </example>
-	public class NotificationWeaverBuildTask : Microsoft.Build.Utilities.Task {
+	public class NotificationWeaverBuildTask : Task {
 
 		/// <summary>
 		/// Gets or sets the target path.
