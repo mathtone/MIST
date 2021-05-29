@@ -5,12 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Mathtone.MIST")]
 [assembly: AssemblyDescription("Implements change notification for properties (ie: INotifyPropertyChanged) using IL weaving.")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Mathtone Industries")]
-[assembly: AssemblyProduct("Mathtone.MIST")]
-[assembly: AssemblyCopyright("Copyright © Mathtone Industries 2016")]
+[assembly: AssemblyCopyright("Copyright © Mathtone Industries 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,6 +27,3 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.5.*")]
-[assembly: AssemblyFileVersion("2.5.0.0")]

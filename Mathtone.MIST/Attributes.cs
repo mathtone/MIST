@@ -9,15 +9,14 @@ namespace Mathtone.MIST {
 	//[AttributeUsage(AttributeTargets.Assembly)]
 	//Ok this works, it will prevent the user from adding this attribute to the assembly but could this possibly be a good idea?
 	[AttributeUsage(AttributeTargets.Module)]
-	public class MistedAssemblyAttribute : Attribute {
-
-	}
+	public class MistedAssemblyAttribute : Attribute {}
 
 	/// <summary>
 	/// Used to mark a property as a notification provider.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Property)]
 	public class NotifyAttribute : Attribute {
+
 		public NotificationStyle Style { get; protected set; }
 
 		public string[] NotificationSource { get; protected set; }
@@ -46,9 +45,7 @@ namespace Mathtone.MIST {
 	/// </summary>
 	/// <seealso cref="System.Attribute" />
 	[AttributeUsage(AttributeTargets.Property)]
-	public class SuppressNotifyAttribute : Attribute {
-
-	}
+	public class SuppressNotifyAttribute : Attribute {}
 
 	/// <summary>
 	/// Used to mark a class for automatic notification implementation;
@@ -68,9 +65,7 @@ namespace Mathtone.MIST {
 	/// Used to identify the notification target method.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method)]
-	public class NotifyTarget : Attribute {
-
-	}
+	public class NotifyTarget : Attribute {}
 
 	/// <summary>
 	/// Use implicit or explicit implementation of notification;
@@ -79,7 +74,7 @@ namespace Mathtone.MIST {
 
 		/// <summary>
 		/// Properties must be marked with the <see cref="NotifyAttribute"/>
-		/// </summary>
+		/// </summary>                                                                                                              
 		Explicit,
 
 		/// <summary>
