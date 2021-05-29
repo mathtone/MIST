@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31313.79
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mathtone.MIST", "Mathtone.MIST\Mathtone.MIST.csproj", "{A0625D95-3D4B-449D-8B13-A806C5F17CA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mathtone.MIST", "Mathtone.MIST\Mathtone.MIST.csproj", "{A0625D95-3D4B-449D-8B13-A806C5F17CA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mathtone.MIST.Builder", "Mathtone.MIST.Builder\Mathtone.MIST.Builder.csproj", "{D367664D-44FF-4FA9-BCA0-B40A5A4C4577}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mathtone.MIST.Builder", "Mathtone.MIST.Builder\Mathtone.MIST.Builder.csproj", "{D367664D-44FF-4FA9-BCA0-B40A5A4C4577}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{BCDB1CAB-3A61-49B1-8E1F-BEB05BA3A590}"
 	ProjectSection(SolutionItems) = preProject
@@ -71,8 +71,8 @@ Global
 		{A0625D95-3D4B-449D-8B13-A806C5F17CA7}.pcl_Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0625D95-3D4B-449D-8B13-A806C5F17CA7}.pcl_Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0625D95-3D4B-449D-8B13-A806C5F17CA7}.pcl_Release|Any CPU.Build.0 = Release|Any CPU
-		{A0625D95-3D4B-449D-8B13-A806C5F17CA7}.Release|Any CPU.ActiveCfg = net_4_6_release|Any CPU
-		{A0625D95-3D4B-449D-8B13-A806C5F17CA7}.Release|Any CPU.Build.0 = net_4_6_release|Any CPU
+		{A0625D95-3D4B-449D-8B13-A806C5F17CA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0625D95-3D4B-449D-8B13-A806C5F17CA7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D367664D-44FF-4FA9-BCA0-B40A5A4C4577}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D367664D-44FF-4FA9-BCA0-B40A5A4C4577}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D367664D-44FF-4FA9-BCA0-B40A5A4C4577}.net_2_0_Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -99,8 +99,8 @@ Global
 		{D367664D-44FF-4FA9-BCA0-B40A5A4C4577}.pcl_Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D367664D-44FF-4FA9-BCA0-B40A5A4C4577}.pcl_Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D367664D-44FF-4FA9-BCA0-B40A5A4C4577}.pcl_Release|Any CPU.Build.0 = Release|Any CPU
-		{D367664D-44FF-4FA9-BCA0-B40A5A4C4577}.Release|Any CPU.ActiveCfg = net_4_6_release|Any CPU
-		{D367664D-44FF-4FA9-BCA0-B40A5A4C4577}.Release|Any CPU.Build.0 = net_4_6_release|Any CPU
+		{D367664D-44FF-4FA9-BCA0-B40A5A4C4577}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D367664D-44FF-4FA9-BCA0-B40A5A4C4577}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F7B113EF-1376-4E51-933A-BA3F5F0AD57A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F7B113EF-1376-4E51-933A-BA3F5F0AD57A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7B113EF-1376-4E51-933A-BA3F5F0AD57A}.net_2_0_Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<TargetFrameworks>net3.5;net40;netstandard2.0;netstandard2.1;</TargetFrameworks>
 		<RootNamespace>Mathtone.Mist</RootNamespace>
@@ -7,7 +6,8 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Version>3.0.0</Version>
 		<Company>Mathtone Industries</Company>
-		<Authors />
+		<NuspecFile>package.nuspec</NuspecFile>
+		<Authors >MIK3C</Authors>
 	</PropertyGroup>
 
 </Project>
