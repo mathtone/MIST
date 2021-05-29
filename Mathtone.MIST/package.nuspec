@@ -3,33 +3,35 @@
 	<metadata>
 		<id>Mathtone.MIST</id>
 		<title>Mathtone.MIST</title>
-		<version>0.0.0.1</version>
+		<version>3.0.0.0</version>
 		<authors>MIK3C</authors>
 		<owners>Mathtone Industries</owners>
 		<projectUrl>https://github.com/mathtone/MIST</projectUrl>
-		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<!--<requireLicenseAcceptance>false</requireLicenseAcceptance>-->
 		<summary>MIST IL Weaving and build task</summary>
-		<description>Easy INPC</description>
+		<description>Beyond easy INPC</description>
 		<releaseNotes></releaseNotes>
 		<repository type="git" url="https://github.com/mathtone/MIST"/>
-		<license type="expression">MIT</license>
+		<!--<license type="expression">MIT</license>-->
 		<tags>build</tags>
 	</metadata>
 
 	<files>
 		<file src="build/Mathtone.MIST.targets" target="build/Mathtone.MIST.targets" />
 
-		<file src="bin/Release/net3.5/Mathtone.MIST.dll" target="lib/net3.5/Mathtone.MIST.dll" />
-		<file src="bin/Release/net40/Mathtone.MIST.dll" target="lib/net40/Mathtone.MIST.dll" />
+		<!--<file src="bin/Release/net3.5/Mathtone.MIST.dll" target="lib/net3.5/Mathtone.MIST.dll" />
+		<file src="bin/Release/net40/Mathtone.MIST.dll" target="lib/net40/Mathtone.MIST.dll" />-->
 		<file src="bin/Release/netstandard2.0/Mathtone.MIST.dll" target="lib/netstandard2.0/Mathtone.MIST.dll" />
 		<file src="bin/Release/netstandard2.1/Mathtone.MIST.dll" target="lib/netstandard2.1/Mathtone.MIST.dll" />
-		
+
 		<file src="bin/Release/netstandard2.0/Mathtone.MIST.deps.json" target="tools/netstandard2.0/Mathtone.MIST.deps.json" />
 		<file src="bin/Release/netstandard2.1/Mathtone.MIST.deps.json" target="tools/netstandard2.1/Mathtone.MIST.deps.json" />
 
 		<file src="../Mathtone.MIST.Builder/bin/Release/netstandard2.0/Mathtone.MIST.Builder.dll" target="tools/netstandard2.0/Mathtone.MIST.Builder.dll" />
+		<file src="../Mathtone.MIST.Builder/bin/Release/netstandard2.0/Mathtone.MIST.Builder.deps.json" target="tools/netstandard2.0/Mathtone.MIST.Builder.deps.json" />
+		<!--<file src="../Mathtone.MIST.Builder/bin/Release/netstandard2.1/Mathtone.MIST.Builder.dll" target="tools/netstandard2.1/Mathtone.MIST.Builder.dll" />-->
 		<file src="../Mathtone.MIST.Builder/bin/Release/net461/Mathtone.MIST.Builder.dll" target="tools/net461/Mathtone.MIST.Builder.dll" />
-		<!--<file src="../MyTask/bin/Release/net461/MyTask.dll" target="tools/net461/MyTask.dll" />-->		
+		<!--<file src="../MyTask/bin/Release/net461/MyTask.dll" target="tools/net461/MyTask.dll" />-->
 		<!--<file src="bin/Release/net461/MyTask.dll" target="tools/net461/MyTask.dll" />-->
 	</files>
 </package>

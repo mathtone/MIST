@@ -4,9 +4,9 @@
 		<MyTaskAssembly Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp' OR '$(TargetFrameworkIdentifier)' == '.NETStandard'">$(MSBuildThisFileDirectory)..\tools\netstandard2.0\Mathtone.MIST.Builder.dll</MyTaskAssembly>
 	</PropertyGroup>
 
-	<UsingTask TaskName="mathtone.MIST.NotificationWeaverBuildTask" AssemblyFile="$(MyTaskAssembly)"/>
+	<UsingTask TaskName="Mathtone.MIST.NotificationWeaverBuildTask" AssemblyFile="$(MyTaskAssembly)"/>
 
-	<Target Name="Mathtone.MIST" AfterTargets="Build">
+	<Target Name="MIST" AfterTargets="Build">
 		<Message Text="Project File Name = $(MSBuildProjectFile)" Importance="high" />
 		<Message Text="Project Extension = $(MSBuildProjectExtension)" Importance="high"/>
 		<Message Text="Target Framework = $(TargetFrameworkIdentifier)" Importance="high"/>

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net3.5;net40;netstandard2.0;netstandard2.1;</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;</TargetFrameworks>
 		<RootNamespace>Mathtone.Mist</RootNamespace>
 		<PackageId>Mathtone.Mist</PackageId>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
