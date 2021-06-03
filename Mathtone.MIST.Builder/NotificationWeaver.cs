@@ -1,4 +1,4 @@
-﻿using Mathtone.MIST.Processors;
+﻿using Mathtone.MIST.Builder.Processors;
 using Microsoft.Build.Framework;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Mathtone.MIST {
+namespace Mathtone.MIST.Builder {
 	/// <summary>
 	/// Alters IL assemblies after build and implements a notification mechanism.
 	/// </summary>
@@ -37,61 +37,58 @@ namespace Mathtone.MIST {
 		/// Weaves the notification mechanism into the assembly
 		/// </summary>
 		/// <param name="debug">if set to <c>true</c> [debug].</param>
-		public void InsertNotifications(bool debug = false)
-        {
-            var pdbPath = FindPdbPathFor(assemblyPath);
-            if (!File.Exists(pdbPath))
-                throw new FileNotFoundException($"Assembly pdb file not found at '{pdbPath}'");
+		public void InsertNotifications(bool debug = false) {
+			var pdbPath = FindPdbPathFor(assemblyPath);
 
-            var assemblyReadPath = CopyToTempFolder(assemblyPath, true);
-            var pdbReadPath = CopyToTempFolder(pdbPath, true);
-            try
-            {
-                InsertNotifications(assemblyReadPath, debug);
-            }
-            finally
-            {
-                File.Delete(assemblyReadPath);
-                File.Delete(pdbReadPath);
-            }
-        }
+			if (!File.Exists(pdbPath))
+				throw new FileNotFoundException($"Assembly {assemblyPath} pdb file not found at '{pdbPath}'");
 
-        private void InsertNotifications(string assemblyReadPath, bool debug)
-        {
-            var readParameters = new ReaderParameters { ReadSymbols = debug, AssemblyResolver = resolver };
-            var writeParameters = new WriterParameters { WriteSymbols = debug };
-            var assemblyProcessor = new AssemblyProcessor(mdResolver);
+			//var assemblyReadPath = CopyToTempFolder(assemblyPath, true);
+			//var pdbReadPath = CopyToTempFolder(pdbPath, true);
+			var assemblyReadPath = assemblyPath;
+			var pdbReadPath = pdbPath;
 
-            //Load the assembly.
-            using (var stream = File.OpenRead(assemblyReadPath))
-            {
-                var assemblyDef = AssemblyDefinition.ReadAssembly(stream, readParameters);
+			try {
+				InsertNotifications(assemblyReadPath, debug);
+			}
+			finally {
+				//File.Delete(assemblyReadPath);
+				//File.Delete(pdbReadPath);
+			}
+		}
 
-                assemblyProcessor.Process(assemblyDef);
+		private void InsertNotifications(string assemblyReadPath, bool debug) {
 
-                //If the assembly has been altered then rewrite it.
-                if (assemblyProcessor.ContainsChanges)
-                {
-                    using (var outputStream = File.OpenWrite(assemblyPath))
-                    {
-                        assemblyDef.Write(outputStream, writeParameters);
-                    }
-                }
-            }
-        }
+			var readParameters = new ReaderParameters { ReadSymbols = debug, AssemblyResolver = resolver };
+			var writeParameters = new WriterParameters { WriteSymbols = debug };
+			var assemblyProcessor = new AssemblyProcessor(mdResolver);
 
-        private static string FindPdbPathFor(string assemblyPath)
-        {
-            return Path.GetFileNameWithoutExtension(assemblyPath) + ".pdb";
-        }
+			//Load the assembly.
+			using (var stream = File.OpenRead(assemblyReadPath)) {
+				var assemblyDef = AssemblyDefinition.ReadAssembly(stream, readParameters);
 
-        private static string CopyToTempFolder(string path, bool overwrite = false)
-        {
-            var tempPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(path));
+				assemblyProcessor.Process(assemblyDef);
 
-            File.Copy(path, tempPath, overwrite);
+				//If the assembly has been altered then rewrite it.
+				if (assemblyProcessor.ContainsChanges) {
+					using (var outputStream = File.OpenWrite(assemblyPath)) {
+						assemblyDef.Write(outputStream, writeParameters);
+					}
+				}
+			}
+		}
 
-            return tempPath;
-        }
-    }
+		private static string FindPdbPathFor(string assemblyPath) {
+
+			return Path.GetDirectoryName(assemblyPath) + "\\" + Path.GetFileNameWithoutExtension(assemblyPath) + ".pdb";
+		}
+
+		private static string CopyToTempFolder(string path, bool overwrite = false) {
+			var tempPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(path));
+
+			File.Copy(path, tempPath, overwrite);
+
+			return tempPath;
+		}
+	}
 }

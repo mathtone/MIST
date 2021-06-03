@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathtone.MIST.Processors {
+namespace Mathtone.MIST.Builder.Processors {
 
 	public class AssemblyProcessor : IDefinitionProcessor<AssemblyDefinition> {
 		MetadataResolver metadataResolver;

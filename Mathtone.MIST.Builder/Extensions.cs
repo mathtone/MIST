@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace Mathtone.MIST {
+namespace Mathtone.MIST.Builder {
 	public static class Extensions {
 		public static bool ContainsAttribute(this IMemberDefinition definition, Type attributeType) =>
 			definition.CustomAttributes.Any(a => a.AttributeType.FullName == attributeType.FullName);

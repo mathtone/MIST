@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathtone.MIST {
+namespace Mathtone.MIST.Builder {
 	[Serializable]
 	public class CannotLocateNotifyTargetException : Exception {
 		public CannotLocateNotifyTargetException(string typeName) :

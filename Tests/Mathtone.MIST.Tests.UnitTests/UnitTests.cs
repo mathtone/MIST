@@ -1,4 +1,5 @@
-﻿using Mathtone.MIST.TestNotifier;
+﻿using Mathtone.MIST.Builder;
+using Mathtone.MIST.TestNotifier;
 using Mathtone.MIST.TestNotifier.Cases;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mono.Cecil;

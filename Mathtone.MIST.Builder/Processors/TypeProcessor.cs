@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace Mathtone.MIST.Processors {
+namespace Mathtone.MIST.Builder.Processors {
 
 	/// <summary>
 	/// Performs MIST notificationprocessing for types.

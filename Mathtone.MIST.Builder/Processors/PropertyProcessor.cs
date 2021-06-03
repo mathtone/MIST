@@ -5,7 +5,7 @@ using System.Linq;
 using Mono.Cecil.Cil;
 using System.Reflection;
 
-namespace Mathtone.MIST.Processors {
+namespace Mathtone.MIST.Builder.Processors {
 
 	public class PropertyProcessor : IDefinitionProcessor<PropertyDefinition> {
 
