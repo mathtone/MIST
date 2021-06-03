@@ -43,17 +43,18 @@ namespace Mathtone.MIST.Builder {
 			if (!File.Exists(pdbPath))
 				throw new FileNotFoundException($"Assembly {assemblyPath} pdb file not found at '{pdbPath}'");
 
-			//var assemblyReadPath = CopyToTempFolder(assemblyPath, true);
-			//var pdbReadPath = CopyToTempFolder(pdbPath, true);
-			var assemblyReadPath = assemblyPath;
-			var pdbReadPath = pdbPath;
+			var assemblyReadPath = CopyToTempFolder(assemblyPath, true);
+			var pdbReadPath = CopyToTempFolder(pdbPath, true);
+			//var assemblyReadPath = assemblyPath;
+			//var pdbReadPath = pdbPath;
 
 			try {
 				InsertNotifications(assemblyReadPath, debug);
 			}
 			finally {
-				//File.Delete(assemblyReadPath);
-				//File.Delete(pdbReadPath);
+				try { File.Delete(assemblyReadPath); } catch { }
+				try { File.Delete(pdbReadPath); } catch { }
+				//
 			}
 		}
 
