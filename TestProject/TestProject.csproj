@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>TestProject</RootNamespace>
+    <AssemblyName>TestProject</AssemblyName>
+    <EnableMISTWeaving>true</EnableMISTWeaving>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mathtone.MIST\Mathtone.MIST.csproj" />
+    <ProjectReference Include="..\Mathtone.MIST.Builder\Mathtone.MIST.Builder.csproj" />
+  </ItemGroup>
+
+  <!-- Import MIST build integration for testing -->
+  <Import Project="..\Mathtone.MIST.Builder\build\Mathtone.MIST.Builder.props" />
+  <Import Project="..\Mathtone.MIST.Builder\build\Mathtone.MIST.Builder.targets" />
+
+</Project>

@@ -18,6 +18,11 @@
 x64/
 x86/
 build/
+# But allow our MSBuild integration files
+!**/build/*.props
+!**/build/*.targets
+!**/buildTransitive/*.props
+!**/buildTransitive/*.targets
 bld/
 [Bb]in/
 [Oo]bj/

@@ -1,0 +1,55 @@
+<Project>
+  
+  <!-- 
+    This file is automatically imported by NuGet when the Mathtone.MIST.Builder package is referenced.
+    It sets up the MIST IL weaving build task to run after compilation.
+  -->
+
+  <PropertyGroup>
+    <MISTBuilderTaskAssembly Condition="'$(MSBuildRuntimeType)' == 'Core'">$(MSBuildThisFileDirectory)Mathtone.MIST.Builder.dll</MISTBuilderTaskAssembly>
+    <MISTBuilderTaskAssembly Condition="'$(MSBuildRuntimeType)' != 'Core'">$(MSBuildThisFileDirectory)Mathtone.MIST.Builder.dll</MISTBuilderTaskAssembly>
+    <!-- For development/testing with project references -->
+    <MISTBuilderTaskAssembly Condition="'$(MSBuildProjectName)' == 'TestProject'">$(MSBuildThisFileDirectory)../../Mathtone.MIST.Builder/bin/Debug/net8.0/Mathtone.MIST.Builder.dll</MISTBuilderTaskAssembly>
+  </PropertyGroup>
+
+  <!-- Define the build task -->
+  <UsingTask 
+    TaskName="Mathtone.MIST.NotificationWeaverBuildTask" 
+    AssemblyFile="$(MISTBuilderTaskAssembly)" 
+    Condition="'$(EnableMISTWeaving)' == 'true'" />
+
+  <!-- Target that runs the IL weaving after build -->
+  <Target Name="MISTWeaving" 
+          AfterTargets="CopyFilesToOutputDirectory" 
+          Condition="'$(EnableMISTWeaving)' == 'true' and '$(TargetFramework)' != ''">
+    
+    <Message Text="MIST: Starting IL weaving for $(TargetPath)" Importance="high" />
+    <Message Text="MIST: TargetFramework = $(TargetFramework)" Importance="high" />
+    <Message Text="MIST: EnableMISTWeaving = $(EnableMISTWeaving)" Importance="high" />
+    
+    <NotificationWeaverBuildTask 
+      TargetPath="$(TargetPath)" 
+      DebugMode="$(MISTWeavingDebugMode)" 
+      ContinueOnError="false" />
+    
+    <Message Text="MIST: IL weaving completed for $(TargetPath)" Importance="high" />
+    
+  </Target>
+
+  <!-- For .NET Framework projects, use AfterBuild instead -->
+  <Target Name="MISTWeavingFramework" 
+          AfterTargets="AfterBuild"
+          Condition="'$(EnableMISTWeaving)' == 'true' and '$(TargetFramework)' == '' and '$(TargetFrameworkVersion)' != ''">
+    
+    <Message Text="MIST: Starting IL weaving for $(TargetPath)" Importance="normal" />
+    
+    <NotificationWeaverBuildTask 
+      TargetPath="$(TargetPath)" 
+      DebugMode="$(MISTWeavingDebugMode)" 
+      ContinueOnError="false" />
+    
+    <Message Text="MIST: IL weaving completed for $(TargetPath)" Importance="normal" />
+    
+  </Target>
+
+</Project>

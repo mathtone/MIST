@@ -1,0 +1,14 @@
+<Project>
+  
+  <!-- 
+    This file is automatically imported by NuGet when the Mathtone.MIST.Builder package is referenced.
+    It sets up the necessary properties for MIST IL weaving to work.
+  -->
+  
+  <PropertyGroup>
+    <EnableMISTWeaving Condition="'$(EnableMISTWeaving)' == ''">true</EnableMISTWeaving>
+    <MISTWeavingDebugMode Condition="'$(MISTWeavingDebugMode)' == ''">false</MISTWeavingDebugMode>
+    <MISTWeavingDebugMode Condition="'$(Configuration)' == 'Debug'">false</MISTWeavingDebugMode>
+  </PropertyGroup>
+
+</Project>
