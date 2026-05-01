@@ -214,3 +214,6 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+
+# nuget.exe bootstrapped by MSBuild restore
+.nuget/
