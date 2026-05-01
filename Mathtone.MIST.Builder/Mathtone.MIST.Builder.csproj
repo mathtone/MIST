@@ -1,7 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;net6.0;net8.0</TargetFrameworks>
+    <!--
+      The build task itself only needs to load inside MSBuild, so it targets
+      the two MSBuild runtimes:
+        - net472   : full-framework MSBuild (Visual Studio, msbuild.exe)
+        - net8.0   : .NET SDK / "dotnet build" (Roslyn build server)
+      This is independent of which target framework the *consumer* of the
+      package compiles against — Mathtone.MIST (the attribute library)
+      supports netstandard2.0, net472, and net6.0 through net10.0.
+    -->
+    <TargetFrameworks>net472;net8.0</TargetFrameworks>
     <AssemblyName>Mathtone.MIST.Builder</AssemblyName>
     <RootNamespace>Mathtone.MIST</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -13,7 +22,7 @@
     <PackageId>Mathtone.MIST.Builder</PackageId>
     <PackageVersion>2.0.0</PackageVersion>
     <Title>MIST Builder - IL Weaving Build Task</Title>
-    <Description>Build task for MIST IL weaving that implements INotifyPropertyChanged.</Description>
+    <Description>Build task for MIST IL weaving that implements INotifyPropertyChanged. Supports both legacy MSBuild (net472) and the .NET SDK on .NET 6/8/9/10.</Description>
     <Authors>Mathtone Industries</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/mathtone/MIST</PackageProjectUrl>
@@ -21,11 +30,15 @@
     <PackageTags>INotifyPropertyChanged;IL;Weaving;MVVM;WPF;PropertyChanged;Build;MSBuild</PackageTags>
     <DevelopmentDependency>true</DevelopmentDependency>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <!-- NU5100: build task assemblies live under tasks/<tfm>/, not lib/, by design. -->
+    <NoWarn>$(NoWarn);NU5100</NoWarn>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackBuildTaskAssemblies</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="17.0.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="17.0.0" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.0.0" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="Mono.Cecil" Version="0.11.4" PrivateAssets="all" />
   </ItemGroup>
 
@@ -40,35 +53,48 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <!-- Package the build integration files -->
+  <!--
+    Pack the NuGet build integration files. The props/targets under build\ are
+    imported automatically when a project (PackageReference) consumes this
+    package. The same files under buildTransitive\ flow through transitive
+    package references. This is the modern replacement for the old
+    Install.ps1 / Uninstall.ps1 NuGet 2.x scripts.
+  -->
   <ItemGroup>
     <None Include="build\**" Pack="true" PackagePath="build\" />
     <None Include="buildTransitive\**" Pack="true" PackagePath="buildTransitive\" />
   </ItemGroup>
 
-  <!-- Include the build task assemblies in the package -->
-  <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
+  <!--
+    Pack the per-TFM task assemblies (and Mono.Cecil) under tasks\<tfm>\.
+    The build/Mathtone.MIST.Builder.props file selects the right folder at
+    build time based on $(MSBuildRuntimeType). This target is invoked once
+    per inner-build (per TargetFramework) by NuGet.Build.Tasks.Pack via the
+    TargetsForTfmSpecificContentInPackage extension point.
+  -->
+  <Target Name="PackBuildTaskAssemblies" DependsOnTargets="Build">
     <ItemGroup>
-      <_PackageFiles Include="$(OutputPath)$(AssemblyName).dll">
-        <PackagePath>build\$(AssemblyName).dll</PackagePath>
-        <Visible>false</Visible>
-        <BuildAction>None</BuildAction>
-      </_PackageFiles>
-      <_PackageFiles Include="$(OutputPath)$(AssemblyName).pdb" Condition="Exists('$(OutputPath)$(AssemblyName).pdb')">
-        <PackagePath>build\$(AssemblyName).pdb</PackagePath>
-        <Visible>false</Visible>
-        <BuildAction>None</BuildAction>
-      </_PackageFiles>
-      <_PackageFiles Include="$(OutputPath)Mathtone.MIST.dll">
-        <PackagePath>build\Mathtone.MIST.dll</PackagePath>
-        <Visible>false</Visible>
-        <BuildAction>None</BuildAction>
-      </_PackageFiles>
-      <_PackageFiles Include="$(OutputPath)Mono.Cecil.dll">
-        <PackagePath>build\Mono.Cecil.dll</PackagePath>
-        <Visible>false</Visible>
-        <BuildAction>None</BuildAction>
-      </_PackageFiles>
+      <TfmSpecificPackageFile Include="$(OutputPath)$(AssemblyName).dll">
+        <PackagePath>tasks\$(TargetFramework)\$(AssemblyName).dll</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)$(AssemblyName).pdb" Condition="Exists('$(OutputPath)$(AssemblyName).pdb')">
+        <PackagePath>tasks\$(TargetFramework)\$(AssemblyName).pdb</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)Mathtone.MIST.dll">
+        <PackagePath>tasks\$(TargetFramework)\Mathtone.MIST.dll</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)Mono.Cecil.dll">
+        <PackagePath>tasks\$(TargetFramework)\Mono.Cecil.dll</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)Mono.Cecil.Pdb.dll" Condition="Exists('$(OutputPath)Mono.Cecil.Pdb.dll')">
+        <PackagePath>tasks\$(TargetFramework)\Mono.Cecil.Pdb.dll</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)Mono.Cecil.Mdb.dll" Condition="Exists('$(OutputPath)Mono.Cecil.Mdb.dll')">
+        <PackagePath>tasks\$(TargetFramework)\Mono.Cecil.Mdb.dll</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)Mono.Cecil.Rocks.dll" Condition="Exists('$(OutputPath)Mono.Cecil.Rocks.dll')">
+        <PackagePath>tasks\$(TargetFramework)\Mono.Cecil.Rocks.dll</PackagePath>
+      </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>
 

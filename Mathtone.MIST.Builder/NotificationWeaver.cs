@@ -82,7 +82,9 @@ namespace Mathtone.MIST {
 
         private static string FindPdbPathFor(string assemblyPath)
         {
-            return Path.GetFileNameWithoutExtension(assemblyPath) + ".pdb";
+            var dir = Path.GetDirectoryName(assemblyPath);
+            var name = Path.GetFileNameWithoutExtension(assemblyPath) + ".pdb";
+            return string.IsNullOrEmpty(dir) ? name : Path.Combine(dir, name);
         }
 
         private static string CopyToTempFolder(string path, bool overwrite = false)

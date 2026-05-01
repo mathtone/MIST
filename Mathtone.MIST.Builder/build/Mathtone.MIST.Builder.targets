@@ -1,0 +1,21 @@
+<Project>
+  <!--
+    Mathtone.MIST.Builder NuGet integration (targets).
+
+    Registers the NotificationWeaverBuildTask and runs it after the project
+    output has been produced, so the resulting assembly is post-processed
+    (IL-woven) to implement INotifyPropertyChanged.
+
+    This replaces the legacy Install.ps1 / Uninstall.ps1 NuGet 2.x install
+    scripts; users no longer need to edit their project file by hand.
+  -->
+  <UsingTask TaskName="Mathtone.MIST.NotificationWeaverBuildTask"
+             AssemblyFile="$(MathtoneMistBuilderTaskAssembly)" />
+
+  <Target Name="MathtoneMistWeave"
+          AfterTargets="Build"
+          Condition="'$(MathtoneMistEnabled)' == 'true' and Exists('$(TargetPath)')">
+    <NotificationWeaverBuildTask TargetPath="$(TargetPath)"
+                                 DebugMode="$(MathtoneMistDebugMode)" />
+  </Target>
+</Project>
