@@ -13,7 +13,7 @@
     <MathtoneMistBuilderTaskRoot>$(MSBuildThisFileDirectory)</MathtoneMistBuilderTaskRoot>
 
     <!-- Pick the task assembly that matches the MSBuild runtime in use. -->
-    <MathtoneMistBuilderTaskTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">net8.0</MathtoneMistBuilderTaskTfm>
+    <MathtoneMistBuilderTaskTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">net6.0</MathtoneMistBuilderTaskTfm>
     <MathtoneMistBuilderTaskTfm Condition="'$(MathtoneMistBuilderTaskTfm)' == ''">net472</MathtoneMistBuilderTaskTfm>
 
     <MathtoneMistBuilderTaskAssembly>$(MathtoneMistBuilderTaskRoot)..\tasks\$(MathtoneMistBuilderTaskTfm)\Mathtone.MIST.Builder.dll</MathtoneMistBuilderTaskAssembly>
