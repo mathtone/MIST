@@ -22,6 +22,10 @@ bld/
 [Bb]in/
 [Oo]bj/
 
+# NuGet build integration files (props/targets shipped inside the package)
+!Mathtone.MIST.Builder/build/
+!Mathtone.MIST.Builder/buildTransitive/
+
 # Visual Studio 2015 cache/options directory
 .vs/
 
@@ -210,3 +214,6 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+
+# nuget.exe bootstrapped by MSBuild restore
+.nuget/

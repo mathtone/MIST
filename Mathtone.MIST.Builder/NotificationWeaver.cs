@@ -40,19 +40,24 @@ namespace Mathtone.MIST {
 		public void InsertNotifications(bool debug = false)
         {
             var pdbPath = FindPdbPathFor(assemblyPath);
-            if (!File.Exists(pdbPath))
+            var pdbExists = File.Exists(pdbPath);
+
+            if (debug && !pdbExists)
                 throw new FileNotFoundException($"Assembly pdb file not found at '{pdbPath}'");
 
             var assemblyReadPath = CopyToTempFolder(assemblyPath, true);
-            var pdbReadPath = CopyToTempFolder(pdbPath, true);
+            string pdbReadPath = null;
+            if (pdbExists)
+                pdbReadPath = CopyToTempFolder(pdbPath, true);
             try
             {
-                InsertNotifications(assemblyReadPath, debug);
+                InsertNotifications(assemblyReadPath, debug && pdbExists);
             }
             finally
             {
                 File.Delete(assemblyReadPath);
-                File.Delete(pdbReadPath);
+                if (pdbReadPath != null)
+                    File.Delete(pdbReadPath);
             }
         }
 
@@ -82,7 +87,9 @@ namespace Mathtone.MIST {
 
         private static string FindPdbPathFor(string assemblyPath)
         {
-            return Path.GetFileNameWithoutExtension(assemblyPath) + ".pdb";
+            var dir = Path.GetDirectoryName(assemblyPath);
+            var name = Path.GetFileNameWithoutExtension(assemblyPath) + ".pdb";
+            return string.IsNullOrEmpty(dir) ? name : Path.Combine(dir, name);
         }
 
         private static string CopyToTempFolder(string path, bool overwrite = false)

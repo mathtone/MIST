@@ -1,0 +1,28 @@
+<Project>
+  <!--
+    Mathtone.MIST.Builder NuGet integration (props).
+
+    This file is automatically imported into a consuming project by NuGet when
+    the Mathtone.MIST.Builder package is referenced. It selects the correct
+    flavor of the build task assembly depending on whether the build is being
+    executed by full-framework MSBuild (Visual Studio / msbuild.exe) or by the
+    .NET SDK ("dotnet build" / Roslyn build).
+  -->
+  <PropertyGroup>
+    <!-- Directory containing this props file (e.g. <pkg>/build/). -->
+    <MathtoneMistBuilderTaskRoot>$(MSBuildThisFileDirectory)</MathtoneMistBuilderTaskRoot>
+
+    <!-- Pick the task assembly that matches the MSBuild runtime in use. -->
+    <MathtoneMistBuilderTaskTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">net6.0</MathtoneMistBuilderTaskTfm>
+    <MathtoneMistBuilderTaskTfm Condition="'$(MathtoneMistBuilderTaskTfm)' == ''">net472</MathtoneMistBuilderTaskTfm>
+
+    <MathtoneMistBuilderTaskAssembly>$(MathtoneMistBuilderTaskRoot)..\tasks\$(MathtoneMistBuilderTaskTfm)\Mathtone.MIST.Builder.dll</MathtoneMistBuilderTaskAssembly>
+
+    <!-- Allow consumers to opt out (e.g. <MathtoneMistEnabled>false</MathtoneMistEnabled>). -->
+    <MathtoneMistEnabled Condition="'$(MathtoneMistEnabled)' == ''">true</MathtoneMistEnabled>
+
+    <!-- Default to the build configuration's debug setting. -->
+    <MathtoneMistDebugMode Condition="'$(MathtoneMistDebugMode)' == ''">$(DebugSymbols)</MathtoneMistDebugMode>
+    <MathtoneMistDebugMode Condition="'$(MathtoneMistDebugMode)' == ''">false</MathtoneMistDebugMode>
+  </PropertyGroup>
+</Project>
