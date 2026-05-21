@@ -22,7 +22,7 @@
     <PackageId>Mathtone.MIST.Builder</PackageId>
     <PackageVersion>2.0.0</PackageVersion>
     <Title>MIST Builder - IL Weaving Build Task</Title>
-    <Description>Build task for MIST IL weaving that implements INotifyPropertyChanged. Supports both legacy MSBuild (net472) and the .NET SDK on .NET 6/8/9/10.</Description>
+    <Description>Build task for MIST IL weaving that implements INotifyPropertyChanged. Supports both legacy MSBuild (net472) and the .NET SDK (.NET 6+).</Description>
     <Authors>Mathtone Industries</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/mathtone/MIST</PackageProjectUrl>
